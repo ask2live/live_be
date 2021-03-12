@@ -51,7 +51,8 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     "users.apps.UsersConfig",
-    'session.apps.SessionConfig',
+    'holes.apps.HolesConfig',
+    "requests.apps.RequestsConfig"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
