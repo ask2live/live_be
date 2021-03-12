@@ -11,19 +11,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from .models import Session
-from .serializers import SessionSerializer
+from .models import Hole
+from .serializers import HoleSerializer
 
-# class sessionViewSet(viewsets.ModelViewSet):
-#     queryset = Session.objects.all()
-#     serializer_class = SessionSerializer
+# class HoleViewSet(viewsets.ModelViewSet):
+#     queryset = Hole.objects.all()
+#     serializer_class = HoleSerializer
 
-class SessionList(APIView):
+class HoleList(APIView):
     """
     게시물 생성
     """
     def post(self, request, format=None):
-        serializers = SessionSerializer(data=request.data)
+        serializers = HoleSerializer(data=request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data, status=status.HTTP_201_CREATED)
@@ -33,32 +33,32 @@ class SessionList(APIView):
     게시물 조회
     """
     def get(self, request, format=None):
-        queryset = Session.objects.all()
-        serializers = SessionSerializer(queryset, many=True)
+        queryset = Hole.objects.all()
+        serializers = HoleSerializer(queryset, many=True)
         return Response(serializers.data)
 
-class SessionDetail(APIView):
+class HoleDetail(APIView):
     def get_object(self, pk):
         try:
-            return Session.objects.get(pk=pk)
-        except Session.DoesNotExist:
+            return Hole.objects.get(pk=pk)
+        except Hole.DoesNotExist:
             raise Http404
     
     """
     특정 게시물 조회
-    /session/{pk}/
+    /Hole/{pk}/
     """
     def get(self, request, pk):
-        session = self.get_object(pk)
-        serializers = SessionSerializer(session)
+        holes = self.get_object(pk)
+        serializers = HoleSerializer(Hole)
         return Response(serializers.data)
 
     """
     게시물 수정
     """
     def put(self, request, pk, format=None):
-        session = self.get_object(pk)
-        serializers = SessionSerializer(session, data=request.data)
+        holes = self.get_object(pk)
+        serializers = HoleSerializer(Hole, data=request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data)
@@ -68,22 +68,22 @@ class SessionDetail(APIView):
     게시물 삭제
     """
     def delete(self, request, pk, format=None):
-        session = self.get_object(pk)
-        session.delete()
+        holes = self.get_object(pk)
+        holes.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 # @api_view(['GET', 'POST'])
-# def session_list(request):
+# def Hole_list(request):
 #     if request.method == 'POST':
 
-#         serializers = SessionSerializer(data=request.data)
+#         serializers = HoleSerializer(data=request.data)
 #         if serializers.is_valid(raise_exception=True):
 #             serializers.save()
 #             return Response(serializers.data)
 
 #     else:
-#         sessions = Session.objects.all()
-#         serializers = SessionSerializer(sessions, many=True)
+#         Holes = Hole.objects.all()
+#         serializers = HoleSerializer(Holes, many=True)
 #         return Response(serializers.data)
 
 
@@ -93,7 +93,7 @@ class SessionDetail(APIView):
 #     question_list = Question.objects.order_by('-create_date')
 #     context = {'question_list': question_list}
 
-#     return render(request, 'session/question_list.html', context)
+#     return render(request, 'Hole/question_list.html', context)
 
 
 # class MovieViewSet(viewsets.ModelViewSet):

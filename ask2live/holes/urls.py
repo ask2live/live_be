@@ -6,10 +6,10 @@ from . import views
 # router = DefaultRouter()
 # router.register('session', views.sessionViewSet)
 
-app_name = 'session'
+app_name = 'holes'
 urlpatterns = [
-    path('', views.SessionList.as_view()),
-    path('<int:pk>/', views.SessionDetail.as_view())
+    path('', views.HoleList.as_view()),
+    path('<int:pk>/', views.HoleDetail.as_view())
 ]
 # urlpatterns = [
 #     path('', include(router.urls)),
