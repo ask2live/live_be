@@ -41,7 +41,6 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-    'session.apps.SessionConfig',
 ]
 
 # REST_FRAMEWORK = {
@@ -52,6 +51,7 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     "users.apps.UsersConfig",
+    'session.apps.SessionConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
