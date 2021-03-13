@@ -52,7 +52,8 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     "users.apps.UsersConfig",
     'holes.apps.HolesConfig',
-    "requests.apps.RequestsConfig"
+    "hole_reservations.apps.HoleReservationsConfig",
+    "core.apps.CoreConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
