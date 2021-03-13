@@ -6,21 +6,17 @@ from . import models
 class HoleAdmin(admin.ModelAdmin):
     list_display = (
         "title"
-        ,"subtitle"
-        ,"description"
-        ,"create_date"
-        ,"reserved_date"
-        ,"finished_date"
-        ,"wish_user_list"
+        ,"reserve_date"
+        ,"finish_date"
         ,"status"
-        ,"target_demand"
-        ,"host_id"
+        ,"rating"
+        ,"host"
     )
 
 @admin.register(models.LiveHole)
 class LiveHoleAdmin(admin.ModelAdmin):
     list_display = (
     "hole"
-    ,"livehole_user_ids"
-    ,
+    # ,"participants"
+    ,"__str__"
     )

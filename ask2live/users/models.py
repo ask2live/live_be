@@ -12,7 +12,7 @@ class User(AbstractUser):
 
     """ user model attribute"""
     profile_image = models.ImageField(blank=True)
-    session_open_auth = models.BooleanField(default=False, blank=True) # 세션 열 수 있는 권한(호스트 여부)
+    hole_open_auth = models.BooleanField(default=False, blank=True) # 세션 열 수 있는 권한(호스트 여부)
     work_field = models.TextField(default="", blank=True) # 관심분야
     login_method = models.CharField(max_length = 50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL)
     followed_count = models.IntegerField(default=0) # 나를 팔로잉하는 사람 수
