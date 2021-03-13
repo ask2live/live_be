@@ -42,13 +42,14 @@ DJANGO_APPS = [
 
     'rest_framework',
     'channels'
+    'rest_framework.authtoken'
 ]
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_RENDERER_CLASSES': (
-#         'rest_framework.renderers.JSONRenderer',
-#     )
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 
 PROJECT_APPS = [
     "users.apps.UsersConfig",

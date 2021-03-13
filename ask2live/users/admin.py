@@ -11,4 +11,10 @@ class CustomUserAdmin(UserAdmin):
             
         )}),
     )
-    list_display= ("username","email","work_field","hole_open_auth","login_method","social_account","rating",)
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
+        ),
+    )
+    list_display= ("email","work_field","hole_open_auth","login_method","social_account","rating",)
