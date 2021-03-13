@@ -41,6 +41,7 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'channels'
 ]
 
 # REST_FRAMEWORK = {
@@ -54,6 +55,7 @@ PROJECT_APPS = [
     'holes.apps.HolesConfig',
     "hole_reservations.apps.HoleReservationsConfig",
     "core.apps.CoreConfig",
+    "chats.apps.ChatsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
@@ -100,7 +102,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': '/usr/local/etc/my.cnf',
+            # 'read_default_file': '/usr/local/etc/my.cnf',
+            'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
         },
     }
 }
@@ -146,3 +149,14 @@ STATIC_URL = '/static/'
 
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
+
+
+# EMAIL SETTING
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'choi1036mk@gmail.com' # ex) bum752@gmail.com
+EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
+# SERVER_EMAIL = '' # ex) bum752@gmail.com
+DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
