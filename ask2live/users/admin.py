@@ -18,3 +18,4 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
     list_display= ("email","work_field","hole_open_auth","login_method","social_account","rating",)
+    ordering = ('email',)

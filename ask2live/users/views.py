@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from . import models
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer,ReadSerializer
 from rest_framework.authtoken.models import Token
 
 from rest_framework.views import APIView # logout용 API VIEW
@@ -26,6 +26,13 @@ def registration_view(request):
         else:
             data= serializer.errors
         return Response(data)
+
+#@api_view(['GET',])
+class read_view(APIView):
+    def get(self, request,format=None):
+        queryset = models.User.objects.all()
+        serializer = ReadSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 class Logout(APIView):
     def post(self, request, format=None):
