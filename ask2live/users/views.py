@@ -27,6 +27,12 @@ def registration_view(request):
             data= serializer.errors
         return Response(data)
 
+class read_view(APIView):
+    def get(self, request, format=None):
+        queryset = self.objects.all()
+        serializer = ReadSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 class Logout(APIView):
     def post(self, request, format=None):
         # simply delete the token to force a login

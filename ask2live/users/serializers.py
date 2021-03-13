@@ -26,3 +26,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.save()
         return account
     
+
+class ReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ['email', 'work_field',]
