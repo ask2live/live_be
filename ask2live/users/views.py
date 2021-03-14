@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from . import models
-from .serializers import RegistrationSerializer,ReadSerializer
+from .serializers import RegistrationSerializer,UserPropertiesSerializer
 from rest_framework.authtoken.models import Token
 
 from rest_framework.views import APIView # logout용 API VIEW
@@ -27,12 +27,6 @@ def registration_view(request):
             data= serializer.errors
         return Response(data)
 
-#@api_view(['GET',])
-class read_view(APIView):
-    def get(self, request,format=None):
-        queryset = models.User.objects.all()
-        serializer = ReadSerializer(queryset, many=True)
-        return Response(serializer.data)
 
 class Logout(APIView):
     def post(self, request, format=None):
@@ -42,3 +36,36 @@ class Logout(APIView):
         data = {}
         data['response'] = 'success'
         return Response(data)
+
+@api_view(['GET',])
+def user_properties_view(request):
+    try:
+        account = request.user
+        print("user 정보 보기:",request.user)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = UserPropertiesSerializer(account)
+        return Response(serializer.data)
+# class read_view(APIView):
+#     def get(self, request,format=None):
+#         queryset = models.User.objects.all()
+#         serializer = ReadSerializer(queryset, many=True)
+#         return Response(serializer.data)
+
+@api_view(['PUT',])
+def user_update_view(request):
+    try:
+        account = request.user
+    except Account.DoesNotExist:
+        return response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method== 'PUT':
+        serializer = UserPropertiesSerializer(account, data=request.data)
+        data= {}
+        if serializer.is_valid():
+            serializer.save()
+            data['response'] = 'Update Success'
+            return Response(data=data)
+        else:
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
