@@ -49,6 +49,9 @@ DJANGO_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ]
 }
 
@@ -57,7 +60,7 @@ PROJECT_APPS = [
     'holes.apps.HolesConfig',
     "hole_reservations.apps.HoleReservationsConfig",
     "core.apps.CoreConfig",
-    "chats.apps.ChatsConfig",
+    # "chats.apps.ChatsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
@@ -155,8 +158,6 @@ STATIC_URL = '/static/'
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
 
-<<<<<<< HEAD
-
 # EMAIL SETTING
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
@@ -166,7 +167,7 @@ EMAIL_HOST_USER = 'choi1036mk@gmail.com' # ex) bum752@gmail.com
 EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
 # SERVER_EMAIL = '' # ex) bum752@gmail.com
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
-=======
+
 ##CORS
 CORS_ORIGIN_ALLOW_ALL=True
 CORS_ALLOW_CREDENTIALS = True
@@ -191,4 +192,4 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
->>>>>>> c4f402cd2dedda1c48a5a0d55541e85c29d4ddfb
+
