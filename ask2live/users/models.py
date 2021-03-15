@@ -56,7 +56,7 @@ class User(AbstractUser):
     username= None
     email = models.EmailField(_('email address'), unique=True)
     USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
 
     """ user model attribute"""
     profile_image = models.ImageField(blank=True)
