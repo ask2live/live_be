@@ -5,10 +5,12 @@ from . import models
 @admin.register(models.Reservation)
 class HoleReservationAdmin(admin.ModelAdmin):
     list_display = (
-    "hole"
-    ,"status"
-    ,"reserve_start_date"
-    ,"finish_date"
-    ,"target_demand"
-    ,"__str__"
+        "id"
+        ,"hole"
+        ,"status"
+        ,"reserve_start_date"
+        ,"finish_date"
+        ,"target_demand"
+        ,"__str__"
     )
+
