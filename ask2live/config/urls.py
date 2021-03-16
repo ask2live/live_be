@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/hole/', include('holes.urls')),
     # path('chat/', include('chats.urls')),
     path('api/user/', include('users.urls', 'user_api')),
+    path('api/reservation/', include('hole_reservations.urls')),
 ]

@@ -5,7 +5,8 @@ from . import models
 @admin.register(models.Hole)
 class HoleAdmin(admin.ModelAdmin):
     list_display = (
-        "title"
+        "id"
+        ,"title"
         ,"reserve_date"
         ,"finish_date"
         ,"status"
