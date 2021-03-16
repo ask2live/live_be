@@ -7,6 +7,8 @@ from .views import (
     hole_detail_view,
     hole_update_view,
     hole_delete_view,
+    MypageHoleView,
+    reserved_hole_detail_view,
 )
 
 
@@ -14,16 +16,12 @@ from .views import (
 # router.register('session', views.sessionViewSet)
 
 app_name = 'holes'
-# urlpatterns = [
-#     path('', views.HoleList.as_view()),
-#     path('<int:pk>/', views.HoleDetail.as_view())
-# ]
+
 urlpatterns = [
     path('', hole_detail_view, name="detail"),
-    path('create/', hole_create_view, name="create"),
-    path('<int:pk>/update/', hole_update_view, name="update"),
-    path('<int:pk>/delete/', hole_delete_view, name="delete"),
+    path('create', hole_create_view, name="create"),
+    path('update/<int:pk>', hole_update_view, name="update"),
+    path('delete/<int:pk>', hole_delete_view, name="delete"),
+    path('list', MypageHoleView.as_view(), name="list"),
+    path('reserved_list', reserved_hole_detail_view, name="reserved_list"),
 ]
-# urlpatterns = [
-#     path('', views.session_list),
-# ]

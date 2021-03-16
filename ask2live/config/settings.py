@@ -43,16 +43,19 @@ DJANGO_APPS = [
     'rest_framework',
 
     'rest_framework.authtoken',
-    'corsheaders'
+    'corsheaders',
+    "sslserver",
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
+        # 'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASSES': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE':3,
 }
 
 PROJECT_APPS = [
@@ -169,8 +172,9 @@ EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
 
 ##CORS
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS=['143.248.198.125','127.0.0.1']
 
 CORS_ALLOW_METHODS = (
     'DELETE',
@@ -192,4 +196,3 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
-
