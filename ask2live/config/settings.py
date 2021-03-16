@@ -109,7 +109,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
 
-            'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
+            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
             # 'read_default_file': '/etc/mysql/my.cnf',
             # 'read_default_file': '/usr/local/etc/my.cnf',
         },

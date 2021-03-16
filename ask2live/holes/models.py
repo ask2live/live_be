@@ -24,7 +24,7 @@ class Hole(core_model.AbstractTimeStamp):
     status          = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_NOTSTART)
     rating          = models.IntegerField(blank=True, default=0)
     # ====================== 나중에 models.ForeignKey로 변경 ======================
-    host            = models.ForeignKey("users.User", related_name="hole",blank=True, on_delete=models.CASCADE)
+    host            = models.ForeignKey("users.User", related_name="hole",on_delete=models.CASCADE)
     
     def __str__(self):
         return self.title

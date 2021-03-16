@@ -3,7 +3,6 @@ from . import models
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-
     password2 = serializers.CharField(style={'input_type':'password'}, write_only= True)    
     class Meta:
         model = models.User
@@ -27,7 +26,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return account
 
 
-class UserPropertiesSerializer(serializers.ModelSerializer):
+class UserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하면 추가해야 함.
     class Meta:
         model = models.User
         fields = ['pk','email', 'work_field','login_method','rating' ]
