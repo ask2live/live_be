@@ -10,21 +10,14 @@ from django_mysql.models import ListTextField,ListF
 # Create your models here.
 
 class HoleQuerySet(models.QuerySet):
-    def notStart(self):
-        return self.filter(status="not_start")
-    
-    def doing(self):
-        return self.filter(status="doing")
-    
-    def done(self):
-        return self.filter(status="done")
     
     def search(self, query=None):
         queryset = self
         if query is not None:
             or_lookup = (Q(title__icontains=query) |
-                        Q(subtitle__icontains=query) |
-                        Q(description__icontains=query)
+                        Q(subtitle__icontains=query) 
+                        Q(description__icontains=query) &
+                        Q(status__icontains=query)
                         )
             queryset = queryset.filter(or_lookup).distinct()
         return queryset
@@ -33,15 +26,6 @@ class HoleManager(models.Manager):
 
     def get_queryset(self):
         return HoleQuerySet(self.model, using=self._db)
-
-    def notStart(self):
-        return self.get_queryset().notStart()
-    
-    def doing(self):
-        return self.get_queryset().doing()
-    
-    def done(self):
-        return self.get_queryset.done()
     
     def search(self, query=None):
         return self.get_queryset().search(query=query)

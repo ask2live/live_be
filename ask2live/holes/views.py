@@ -23,75 +23,7 @@ from users import models as user_models
 from hole_reservations import models as reserve_models
 from .serializers import HoleSerializer,CreateLiveHoleSerializer
 from django_mysql.models import ListF
-# class HoleViewSet(viewsets.ModelViewSet):
-#     queryset = Hole.objects.all()
-#     serializer_class = HoleSerializer
 
-# class HoleList(APIView):
-#     # permission_classes = [IsAuthenticated]
-#     """
-#     게시물 생성
-#     """
-#     def post(self, request, format=None):
-#         serializers = HoleSerializer(data=request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data, status=status.HTTP_201_CREATED)
-#         return Response(serializers.data, status=status.HTTP_400_BAD_REQUEST)
-
-#     """
-#     게시물 조회
-#     """
-#     def get(self, request, format=None):
-#         queryset = Hole.objects.all()
-#         serializers = HoleSerializer(queryset, many=True)
-#         return Response(serializers.data)
-
-# class HoleDetail(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def get_object(self, pk):
-#         try:
-#             return Hole.objects.get(pk=pk)
-#         except Hole.DoesNotExist:
-#             raise Http404
-    
-#     """
-#     특정 게시물 조회
-#     /Hole/{pk}/
-#     """
-#     def get(self, request, pk):
-#         holes = self.get_object(pk)
-#         serializers = HoleSerializer(Hole)
-#         return Response(serializers.data)
-
-#     """
-#     게시물 수정
-#     """
-#     def put(self, request, pk, format=None):
-#         holes = self.get_object(pk)
-
-#         user = request.user
-#         if holes.host != user:
-#             Response({'requset:', "You dont have permission to edit."})
-
-#         serializers = HoleSerializer(Hole, data=request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data)
-#         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     """
-#     게시물 삭제
-#     """
-#     def delete(self, request, pk, format=None):
-#         holes = self.get_object(pk)
-
-#         user = request.user
-#         if holes.host != user:
-#             Response({'requset:', "You dont have permission to edit."})
-        
-#         holes.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST',])
 # @permission_classes((IsAuthenticated,))
@@ -193,14 +125,15 @@ class HoleSearchView(ListAPIView):
 
     # queryset = Hole.objects.all()
     serializer_class = HoleSerializer
-    # filterset_fields = ['status']
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
 
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super().get_context_data(*args, **kwargs)
-    #     context['count'] = self.count or 0
-    #     context['query'] = self.request.GET('q')
-    #     print(context)
-    #     return context
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['count'] = self.count or 0
+        context['query'] = self.request.GET('q')
+        print(context)
+        return context
 
     def get_queryset(self):
         request = self.request
