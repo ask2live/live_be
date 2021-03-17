@@ -19,5 +19,5 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
-    list_display= ("email","work_field","hole_open_auth","login_method","social_account","rating",)
-    ordering = ('email',)
+    list_display= ("pk","email","work_field","hole_open_auth","login_method","social_account","rating",)
+    ordering = ("-pk",'email',)

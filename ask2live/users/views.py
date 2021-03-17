@@ -33,6 +33,7 @@ def registration_view(request):
             # data['username'] = account.username
             data['work_field'] = account.work_field
             data['pk'] = account.pk
+            data['hole_open_auth'] = account.hole_open_auth
             token = Token.objects.get(user=account).key
             data['token'] = token
         else:

@@ -49,10 +49,10 @@ DJANGO_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASSES': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE':3,
@@ -114,7 +114,7 @@ DATABASES = {
 
             # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
             # 'read_default_file': '/etc/mysql/my.cnf',
-            # 'read_default_file': '/usr/local/etc/my.cnf',
+            'read_default_file': '/usr/local/etc/my.cnf',
         },
     }
 }
