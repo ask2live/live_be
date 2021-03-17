@@ -84,7 +84,8 @@ class Logout(APIView):
         return Response(data)
 
 @api_view(['GET',])
-@permission_classes((IsAuthenticated,)) #특정 유저 조회할 때는 허가 필요
+@permission_classes([]) #특정 유저 조회할 때는 허가 필요
+# @permission_classes((IsAuthenticated,)) #특정 유저 조회할 때는 허가 필요
 def user_properties_view(request):
     try:
         account = request.user

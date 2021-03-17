@@ -25,7 +25,7 @@ from .serializers import HoleSerializer,LiveHoleSerializer
 from django_mysql.models import ListF
 
 @api_view(['POST',])
-# @permission_classes((IsAuthenticated,))
+@permission_classes([])
 def hole_create_view(request):
     
     account = request.user
@@ -43,7 +43,7 @@ def hole_create_view(request):
 
 
 @api_view(['GET',])
-# @permission_classes((IsAuthenticated,))
+# @permission_classes([])
 def hole_detail_view(request):
     holes = Hole.objects.all()
     serializer = HoleSerializer(holes, many=True)
@@ -51,7 +51,7 @@ def hole_detail_view(request):
 
 
 @api_view(['PUT',])
-# @permission_classes((IsAuthenticated,))
+@permission_classes([])
 def hole_update_view(request, hole_id):
 
     # hole이 존재하는지 찾는다
@@ -78,7 +78,7 @@ def hole_update_view(request, hole_id):
 
 
 @api_view(['DELETE',])
-# @permission_classes((IsAuthenticated,))
+@permission_classes([])
 def hole_delete_view(request, hole_id):
 
     # hole이 존재하는지 찾는다
@@ -112,7 +112,7 @@ def hole_delete_view(request, hole_id):
 
 
 @api_view(['GET',])
-# @permission_classes((IsAuthenticated,))
+# @permission_classes([])
 def reserved_hole_detail_view(request):
     reserved_holes = Hole.objects.exclude(reserve_date__isnull=True).exclude(finish_date__isnull=True)
     serializer = HoleSerializer(reserved_holes, many=True)
@@ -144,7 +144,8 @@ class HoleSearchView(ListAPIView):
 
 # Live Hole을 만드는 기능. room_number랑 uid 받을 거임.
 @api_view(['POST',])
-@permission_classes((IsAuthenticated,))
+# @permission_classes((IsAuthenticated,))
+# @permission_classes([])
 def live_hole_create_view(request,pk):
     account = request.user
     # print("account:",account)
