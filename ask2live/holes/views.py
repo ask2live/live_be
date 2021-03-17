@@ -124,14 +124,15 @@ class HoleSearchView(ListAPIView):
 
     # queryset = Hole.objects.all()
     serializer_class = HoleSerializer
-    # filterset_fields = ['status']
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
 
-    # def get_context_data(self, *args, **kwargs):
-    #     context = super().get_context_data(*args, **kwargs)
-    #     context['count'] = self.count or 0
-    #     context['query'] = self.request.GET('q')
-    #     print(context)
-    #     return context
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['count'] = self.count or 0
+        context['query'] = self.request.GET('q')
+        print(context)
+        return context
 
     def get_queryset(self):
         request = self.request
