@@ -2,8 +2,49 @@ from django.db import models
 from django.db.models import IntegerField, Model
 from users import models as user_models
 from core import models as core_model
+
+from django_mysql.models import ListTextField
+from django.db.models import Q
 from django_mysql.models import ListTextField,ListF
+
 # Create your models here.
+
+class HoleQuerySet(models.QuerySet):
+    def notStart(self):
+        return self.filter(status="not_start")
+    
+    def doing(self):
+        return self.filter(status="doing")
+    
+    def done(self):
+        return self.filter(status="done")
+    
+    def search(self, query=None):
+        queryset = self
+        if query is not None:
+            or_lookup = (Q(title__icontains=query) |
+                        Q(subtitle__icontains=query) |
+                        Q(description__icontains=query)
+                        )
+            queryset = queryset.filter(or_lookup).distinct()
+        return queryset
+
+class HoleManager(models.Manager):
+
+    def get_queryset(self):
+        return HoleQuerySet(self.model, using=self._db)
+
+    def notStart(self):
+        return self.get_queryset().notStart()
+    
+    def doing(self):
+        return self.get_queryset().doing()
+    
+    def done(self):
+        return self.get_queryset.done()
+    
+    def search(self, query=None):
+        return self.get_queryset().search(query=query)
 
 
 class Hole(core_model.AbstractTimeStamp):
@@ -25,6 +66,7 @@ class Hole(core_model.AbstractTimeStamp):
     rating          = models.IntegerField(blank=True, default=0)
     # ====================== 나중에 models.ForeignKey로 변경 ======================
     host            = models.ForeignKey("users.User", related_name="hole",on_delete=models.CASCADE)
+    objects = HoleManager()
     
     def __str__(self):
         return self.title
