@@ -8,10 +8,9 @@ from rest_framework.decorators import api_view,authentication_classes, permissio
 from . import models
 from .serializers import RegistrationSerializer,UserPropertiesSerializer
 from rest_framework.authtoken.models import Token
-
 from rest_framework.views import APIView # logout용 API VIEW
-# Create your views here.
 
+# Create your views here.
 @api_view(['POST',])
 @permission_classes([]) # 회원 가입할 때는 permission을 따로 적용하지 않기 때문에 빈 값으로.
 @authentication_classes([]) #회원 가입 할 때 인증을 따로 적용하지 않기 때문에 빈 값으로.
@@ -55,8 +54,8 @@ class ObtainAuthTokenView(APIView): # login용 View를 추가
 
     def post(self,request):
         context = {}
-        email = request.POST.get('username')
-        password = request.POST.get('password')
+        email = request.data.get('username')
+        password = request.data.get('password')
         account = authenticate(email=email, password=password) #account는 이메일로 나옴.
         # print("authenticate 한 account:", account)
         if account:
@@ -92,8 +91,11 @@ def user_properties_view(request):
         # print("user 정보 보기:",request.user)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
-        serializer = UserPropertiesSerializer(account)
+        account = models.User.objects.all()
+        print(account)
+        serializer = UserPropertiesSerializer(account, many=True)
         return Response(serializer.data)
 # class read_view(APIView):
 #     def get(self, request,format=None):
@@ -108,7 +110,6 @@ def user_update_view(request):
         account = request.user
     except Account.DoesNotExist:
         return response(status=status.HTTP_404_NOT_FOUND)
-
     if request.method== 'PUT':
         serializer = UserPropertiesSerializer(account, data=request.data)
         data= {}
