@@ -28,7 +28,7 @@ SECRET_KEY = 'd#gk+eoz7#tn+bfh83tqu%w6n94i%2^5p)jo4-(8y_17vcbg^z'
 DEBUG = True
 
 # ALLOWED_HOSTS = ['3.36.108.181','172.31.8.193']
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -52,7 +52,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASSES': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE':3,
@@ -112,9 +112,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
 
-            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
+            'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
             # 'read_default_file': '/etc/mysql/my.cnf',
-            'read_default_file': '/usr/local/etc/my.cnf',
+            # 'read_default_file': '/usr/local/etc/my.cnf',
         },
     }
 }
@@ -176,9 +176,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
     "https://143.248.198.125:8000",
     "https://143.248.232.138:3000",
+    "https://143.248.229.22:3000",
 )
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost']
+# ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.229.22']
+ALLOWED_HOSTS=['*']
 
 CORS_ALLOW_METHODS = (
     'DELETE',
