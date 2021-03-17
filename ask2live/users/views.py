@@ -95,11 +95,6 @@ def user_properties_view(request):
     if request.method == 'GET':
         serializer = UserPropertiesSerializer(account)
         return Response(serializer.data)
-# class read_view(APIView):
-#     def get(self, request,format=None):
-#         queryset = models.User.objects.all()
-#         serializer = ReadSerializer(queryset, many=True)
-#         return Response(serializer.data)
 
 @api_view(['PUT',])
 @permission_classes((IsAuthenticated,)) #특정 유저 수정할 때는 허가 필요

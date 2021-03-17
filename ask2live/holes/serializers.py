@@ -14,12 +14,14 @@ class HoleSerializer(serializers.ModelSerializer):
     #     return username
 
 
-class CreateLiveHoleSerializer(serializers.ModelSerializer):
-    hole = serializers.PrimaryKeyRelatedField(many=False, queryset=Hole.objects.all())
+class LiveHoleSerializer(serializers.ModelSerializer):
+    # hole = serializers.PrimaryKeyRelatedField(many=False, queryset=Hole.objects.all())
 
     class Meta:
         model = LiveHole
-        fields = ['host_uid', 'room_number', 'hole'] # 모델에 있는 컬럼 중에 선택
+        # 모델에 있는 컬럼 중에 선택
+        fields = ['host_uid', 'room_number', 'audience_list', 'hole'] 
+        # fields = '__all__'
     # def save(self):
     #     print("vali data: ", self.validated_data)
     #     livehole = LiveHole(

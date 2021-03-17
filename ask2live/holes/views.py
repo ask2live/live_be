@@ -17,77 +17,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Hole, LiveHole
 from users import models as user_models
 from hole_reservations import models as reserve_models
-from .serializers import HoleSerializer,CreateLiveHoleSerializer
+from .serializers import HoleSerializer,LiveHoleSerializer
 from django_mysql.models import ListF
-# class HoleViewSet(viewsets.ModelViewSet):
-#     queryset = Hole.objects.all()
-#     serializer_class = HoleSerializer
-
-# class HoleList(APIView):
-#     # permission_classes = [IsAuthenticated]
-#     """
-#     게시물 생성
-#     """
-#     def post(self, request, format=None):
-#         serializers = HoleSerializer(data=request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data, status=status.HTTP_201_CREATED)
-#         return Response(serializers.data, status=status.HTTP_400_BAD_REQUEST)
-
-#     """
-#     게시물 조회
-#     """
-#     def get(self, request, format=None):
-#         queryset = Hole.objects.all()
-#         serializers = HoleSerializer(queryset, many=True)
-#         return Response(serializers.data)
-
-# class HoleDetail(APIView):
-#     permission_classes = [IsAuthenticated]
-#     def get_object(self, pk):
-#         try:
-#             return Hole.objects.get(pk=pk)
-#         except Hole.DoesNotExist:
-#             raise Http404
-    
-#     """
-#     특정 게시물 조회
-#     /Hole/{pk}/
-#     """
-#     def get(self, request, pk):
-#         holes = self.get_object(pk)
-#         serializers = HoleSerializer(Hole)
-#         return Response(serializers.data)
-
-#     """
-#     게시물 수정
-#     """
-#     def put(self, request, pk, format=None):
-#         holes = self.get_object(pk)
-
-#         user = request.user
-#         if holes.host != user:
-#             Response({'requset:', "You dont have permission to edit."})
-
-#         serializers = HoleSerializer(Hole, data=request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data)
-#         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     """
-#     게시물 삭제
-#     """
-#     def delete(self, request, pk, format=None):
-#         holes = self.get_object(pk)
-
-#         user = request.user
-#         if holes.host != user:
-#             Response({'requset:', "You dont have permission to edit."})
-        
-#         holes.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST',])
 # @permission_classes((IsAuthenticated,))
@@ -200,10 +131,8 @@ def live_hole_create_view(request,pk):
     account = request.user
     # print("account:",account)
     hole = Hole.objects.get(pk=pk)
-    # print("hole:",hole)
     if request.method=="POST":
         is_host = request.data.get("is_host")
-        # print("is_host:", is_host)
         data = {}
         if is_host == 'True':
             host_uid = request.data.get('host_uid')
@@ -255,3 +184,19 @@ def live_hole_update_view(request,room_num,pk):
             data['error_message'] = 'Not Audience'
             data['response'] = 'Error'
             return Response(data)
+
+@api_view(['GET',])
+@permission_classes([])
+def live_hole_read_view(request,room_num):
+    try:
+        print("room_num:",room_num)
+        livehole = LiveHole.objects.filter(room_number=room_num)
+        print("live_hole:",livehole)
+    except LiveHole.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = LiveHoleSerializer(livehole)
+        print("serializer:",serializer)
+        print("serializer.data",serializer.data)
+        return Response(serializer.data)

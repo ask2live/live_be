@@ -35,7 +35,7 @@ class LiveHole(core_model.AbstractTimeStamp):
     # participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True) #null이 들어가도 되는건가?
     # host = models.ForeignKey("users.User", related_name="liveholes_host", on_delete=models.CASCADE)
     host_uid = models.IntegerField(blank=True,default=0)
-    audience_list = ListTextField( base_field=IntegerField(), size=30,null=True)
+    audience_list = ListTextField( base_field=IntegerField(), size=30,default='')
     # Maximum of 30 ids in list
     room_number = models.CharField(max_length=50,unique=True,default='')
 
