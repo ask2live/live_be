@@ -9,12 +9,9 @@ from .views import (
     hole_delete_view,
     reserved_hole_detail_view,
     HoleSearchView,
+    live_hole_update_view,
+    live_hole_create_view,
 )
-
-
-# router = DefaultRouter()
-# router.register('session', views.sessionViewSet)
-
 app_name = 'holes'
 
 urlpatterns = [
@@ -24,4 +21,6 @@ urlpatterns = [
     path('delete/<int:hole_id>', hole_delete_view, name="delete"),
     path('reserved_list', reserved_hole_detail_view, name="reserved_list"),
     path('search', HoleSearchView.as_view(), name="search"),
+    path('<int:pk>/live_update/<str:room_num>', live_hole_update_view, name="live/update"),
+    path('<int:pk>/live_create', live_hole_create_view, name='live/create'),
 ]

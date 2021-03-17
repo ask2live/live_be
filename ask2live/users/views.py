@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
+
 from . import models
 from .serializers import RegistrationSerializer,UserPropertiesSerializer
 from rest_framework.authtoken.models import Token
@@ -21,7 +22,9 @@ def registration_view(request):
             data['error_message'] = 'That email is already in use.'
             data['response'] = 'Error'
             return Response(data)
+
         serializer= RegistrationSerializer(data=request.data)
+
         if serializer.is_valid():
             account = serializer.save()
             data['response'] = "registration success."
@@ -48,12 +51,11 @@ def validate_email(email):
 class ObtainAuthTokenView(APIView): # login용 View를 추가
     authentication_classes= []
     permission_classes = []
+
     def post(self,request):
         context = {}
         email = request.data.get('username')
-        # print(email)
         password = request.data.get('password')
-        # print(password)
         account = authenticate(email=email, password=password) #account는 이메일로 나옴.
         # print("authenticate 한 account:", account)
         if account:
@@ -82,13 +84,14 @@ class Logout(APIView):
         return Response(data)
 
 @api_view(['GET',])
-# @permission_classes((IsAuthenticated,)) #특정 유저 조회할 때는 허가 필요
+@permission_classes((IsAuthenticated,)) #특정 유저 조회할 때는 허가 필요
 def user_properties_view(request):
-    # try:
-        # account = request.user
+    try:
+        account = request.user
         # print("user 정보 보기:",request.user)
-    # except User.DoesNotExist:
-        # return Response(status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
         account = models.User.objects.all()
         print(account)

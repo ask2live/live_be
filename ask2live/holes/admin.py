@@ -20,4 +20,7 @@ class LiveHoleAdmin(admin.ModelAdmin):
     "hole"
     # ,"participants"
     ,"__str__"
+    ,"host_uid"
+    ,"audience_list"
+    ,"room_number"
     )
