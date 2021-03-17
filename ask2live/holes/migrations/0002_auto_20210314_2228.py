@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='hole',
             name='host',
-            field=models.ForeignKey(blank=True, on_delete=django.db.models.deletion.CASCADE, related_name='hole', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey( on_delete=django.db.models.deletion.CASCADE, related_name='hole', to=settings.AUTH_USER_MODEL),
         ),
     ]
