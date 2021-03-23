@@ -5,7 +5,8 @@ from . import models
 @admin.register(models.Hole)
 class HoleAdmin(admin.ModelAdmin):
     list_display = (
-        "title"
+        "id"
+        ,"title"
         ,"reserve_date"
         ,"finish_date"
         ,"status"
@@ -19,4 +20,7 @@ class LiveHoleAdmin(admin.ModelAdmin):
     "hole"
     # ,"participants"
     ,"__str__"
+    ,"host_uid"
+    ,"audience_list"
+    ,"room_number"
     )

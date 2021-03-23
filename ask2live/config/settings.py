@@ -27,7 +27,7 @@ SECRET_KEY = 'd#gk+eoz7#tn+bfh83tqu%w6n94i%2^5p)jo4-(8y_17vcbg^z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.36.108.181','172.31.8.193','3.36.54.241']
+ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = []
 
 # Application definition
@@ -41,14 +41,21 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+
     'rest_framework.authtoken',
-    'corsheaders'
+    'corsheaders',
+    "sslserver",
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASSES': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE':3,
 }
 
 PROJECT_APPS = [
@@ -56,6 +63,7 @@ PROJECT_APPS = [
     'holes.apps.HolesConfig',
     "hole_reservations.apps.HoleReservationsConfig",
     "core.apps.CoreConfig",
+    # "chats.apps.ChatsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
@@ -104,6 +112,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
             'read_default_file': '/etc/mysql/my.cnf',
+            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
+            # 'read_default_file': '/etc/mysql/my.cnf',
             # 'read_default_file': '/usr/local/etc/my.cnf',
         },
     }
@@ -151,9 +161,26 @@ STATIC_URL = '/static/'
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
 
+# EMAIL SETTING
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'choi1036mk@gmail.com' # ex) bum752@gmail.com
+EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
+# SERVER_EMAIL = '' # ex) bum752@gmail.com
+DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
+
 ##CORS
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    "https://143.248.198.125:8000",
+    "https://143.248.232.138:3000",
+    "https://143.248.229.22:3000",
+)
 CORS_ALLOW_CREDENTIALS = True
+# ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.229.22']
+ALLOWED_HOSTS=['*']
 
 CORS_ALLOW_METHODS = (
     'DELETE',
