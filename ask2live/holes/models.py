@@ -15,7 +15,7 @@ class HoleQuerySet(models.QuerySet):
         queryset = self
         if query is not None:
             or_lookup = (Q(title__icontains=query) |
-                        Q(subtitle__icontains=query) 
+                        Q(subtitle__icontains=query) |
                         Q(description__icontains=query) &
                         Q(status__icontains=query)
                         )
@@ -57,13 +57,13 @@ class Hole(core_model.AbstractTimeStamp):
 
 
 class LiveHole(core_model.AbstractTimeStamp):
+    id = models.CharField(max_length=100,unique=True, primary_key=True)
     hole = models.OneToOneField(Hole,related_name="liveholes", on_delete=models.CASCADE, blank=True)
-    # participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True) #null이 들어가도 되는건가?
-    # host = models.ForeignKey("users.User", related_name="liveholes_host", on_delete=models.CASCADE)
+    # 언제 pariticpant가 join했는지 알려면 테이블을 따로 빼서 ForeignKey로 둬야 할지도..
+    participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True, default='') #null이 들어가도 되는건가?
     host_uid = models.IntegerField(blank=True,default=0)
-    audience_list = ListTextField( base_field=IntegerField(), size=30,default='')
+    audience_uids = ListTextField( base_field=IntegerField(), size=30,default='')
     # Maximum of 30 ids in list
-    room_number = models.CharField(max_length=50,unique=True,default='')
 
     # def __str__(self):
     #     usernames = []
@@ -77,6 +77,8 @@ class LiveHole(core_model.AbstractTimeStamp):
         print(audience_list)
         return audience_list
 
+
+# particiapants를 따로 클래스로 만드는게 나을듯.
 
 
 class Question(core_model.AbstractTimeStamp):

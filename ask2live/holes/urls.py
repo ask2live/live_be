@@ -27,4 +27,5 @@ urlpatterns = [
     path('search', HoleSearchView.as_view(), name="search"),
     path('<int:pk>/live_update/<str:room_num>', live_hole_update_view, name="live/update"),
     path('<int:pk>/live_create', live_hole_create_view, name='live/create'),
+    # live_leave api 만들 필요가 있나?
 ]

@@ -17,10 +17,10 @@ class HoleAdmin(admin.ModelAdmin):
 @admin.register(models.LiveHole)
 class LiveHoleAdmin(admin.ModelAdmin):
     list_display = (
-    "hole"
+    "id"
+    ,"hole"
     # ,"participants"
     ,"__str__"
     ,"host_uid"
-    ,"audience_list"
-    ,"room_number"
+    ,"audience_uids"
     )

@@ -30,5 +30,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class UserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하면 추가해야 함.
     class Meta:
         model = models.User
-        fields = ['pk','email', 'work_field','login_method','rating','hole_open_auth' ]
+        fields = ['pk','email', 'work_field','login_method','rating','hole_open_auth','profile_image','nickname' ]
 
+
+class ChangePasswordSerializer(serializers.Serializer): # 비밀번호 변경용
+	old_password 				= serializers.CharField(required=True)
+	new_password 				= serializers.CharField(required=True)
+	confirm_new_password 		= serializers.CharField(required=True)

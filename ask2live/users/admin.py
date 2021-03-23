@@ -9,7 +9,7 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('email', 'password')}),
         ('Permissions', {'fields': ('is_staff', 'is_active')}),
         ("Custom Profile", { "fields" : (
-            "profile_image","hole_open_auth","work_field","login_method","followed_count","following_count","social_account","bio","rating",
+            "nickname","profile_image","hole_open_auth","work_field","login_method","followed_count","following_count","social_account","bio","rating",
             
         )}),
     )
@@ -19,5 +19,5 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
-    list_display= ("pk","email","work_field","hole_open_auth","login_method","social_account","rating",)
+    list_display= ("pk","email","nickname","work_field","hole_open_auth","login_method","social_account","rating",)
     ordering = ("-pk",'email',)

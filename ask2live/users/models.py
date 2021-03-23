@@ -42,6 +42,9 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self.create_user(email, password, **extra_fields)
 
+def nameFile(instance, filename):
+    return '/'.join(['profile_images',filename])
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -59,7 +62,10 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     """ user model attribute"""
-    profile_image = models.ImageField(blank=True)
+    nickname = models.CharField(max_length=100,default="Meerkat")
+    profile_image = models.ImageField(blank=True, max_length=255, 
+        upload_to = nameFile
+    )
     hole_open_auth = models.BooleanField(default=False, blank=True) # 세션 열 수 있는 권한(호스트 여부)
     work_field = models.TextField(default="", blank=True) # 일하는 분야
     login_method = models.CharField(max_length = 50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL)

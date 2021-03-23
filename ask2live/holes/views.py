@@ -3,20 +3,16 @@ from django.shortcuts import render
 # Create your views here.
 from django.http import HttpResponse
 from django.http import Http404
-
-
 from rest_framework import viewsets,status
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from rest_framework.permissions import IsAuthenticated  # 로그인 권한
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly  # 로그인 권한
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
-
-from .serializers import HoleSerializer
 
 from .models import Hole, LiveHole
 from users import models as user_models
@@ -26,25 +22,21 @@ from django_mysql.models import ListF
 
 @api_view(['POST',])
 @permission_classes([])
-def hole_create_view(request):
-    
-    account = request.user
-
-    hole = Hole(host=account)
-
-    serializer = HoleSerializer(hole, data=request.data)
+def hole_create_view(request): # hole 만드는 api
+    # account = request.user
+    # hole = Hole(host=account)
+    serializer = HoleSerializer(data=request.data)
     data = {}
-
     if serializer.is_valid():
         serializer.save()
-        Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET',])
-# @permission_classes([])
-def hole_detail_view(request):
+@permission_classes([IsAuthenticatedOrReadOnly,])
+def hole_detail_view(request): #hole 상세정보 보는 api
     holes = Hole.objects.all()
     serializer = HoleSerializer(holes, many=True)
     return Response(serializer.data)
@@ -52,8 +44,7 @@ def hole_detail_view(request):
 
 @api_view(['PUT',])
 @permission_classes([])
-def hole_update_view(request, hole_id):
-
+def hole_update_view(request, hole_id): # 특정 hole update하기
     # hole이 존재하는지 찾는다
     try:
         hole = Hole.objects.get(pk=hole_id)
@@ -64,7 +55,6 @@ def hole_update_view(request, hole_id):
     user = request.user
     if hole.host != user:
         return Response({'response': "You don't have permission to edit this."})
-
     # 업데이트 대상 instance를 추가해야 함 (hole)
     serializer = HoleSerializer(hole, data=request.data)
     data = {}
@@ -79,8 +69,7 @@ def hole_update_view(request, hole_id):
 
 @api_view(['DELETE',])
 @permission_classes([])
-def hole_delete_view(request, hole_id):
-
+def hole_delete_view(request, hole_id): # hole 삭제하는 api
     # hole이 존재하는지 찾는다
     try:
         hole = Hole.objects.get(pk=hole_id)
@@ -110,24 +99,22 @@ def hole_delete_view(request, hole_id):
     return Response(data)
 
 
-
 @api_view(['GET',])
-# @permission_classes([])
-def reserved_hole_detail_view(request):
+@permission_classes([IsAuthenticatedOrReadOnly,])
+def reserved_hole_detail_view(request): # 예약된 hole만 조회하는 api
     reserved_holes = Hole.objects.exclude(reserve_date__isnull=True).exclude(finish_date__isnull=True)
     serializer = HoleSerializer(reserved_holes, many=True)
     
     return Response(serializer.data)
 
 
-class HoleSearchView(ListAPIView):
-
+class HoleSearchView(ListAPIView): # hole을 찾는 api
     # queryset = Hole.objects.all()
     serializer_class = HoleSerializer
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
+    authentication_classes = ([])
+    permission_classes = ([])
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, *args, **kwargs): # context data 공부하기
         context = super().get_context_data(*args, **kwargs)
         context['count'] = self.count or 0
         context['query'] = self.request.GET('q')
@@ -145,7 +132,7 @@ class HoleSearchView(ListAPIView):
 
 # Live Hole을 만드는 기능. room_number랑 uid 받을 거임.
 @api_view(['POST',])
-# @permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticated,))
 # @permission_classes([])
 def live_hole_create_view(request,pk):
     account = request.user
@@ -169,11 +156,7 @@ def live_hole_create_view(request,pk):
             hole.status = 'DOING'
             hole.save()
             livehole=LiveHole.objects.create(host_uid=host_uid, room_number=room_num, hole=hole)
-            # print(hole)
-            # livehole.hole_id = hole.hole_id
-            # livehole = serializer.save()
             livehole.save()
-            print("livehole: ", livehole)
             data['response'] = 'live hole creation success'
             data['host_id'] = hole.host.pk
             data['host_uid'] = livehole.host_uid        
@@ -206,11 +189,12 @@ def live_hole_update_view(request,room_num,pk):
             return Response(data)
 
 @api_view(['GET',])
-@permission_classes([])
+@permission_classes([IsAuthenticatedOrReadOnly,])
 def live_hole_read_view(request,room_num):
     try:
-        print("room_num:",room_num)
-        livehole = LiveHole.objects.filter(room_number=room_num)
+        # print("room_num:",room_num)
+        livehole = LiveHole.objects.get(room_number=room_num)
+        # filter는 여러개 가지고올 수 있고, get은 1개만 가져온다.
         print("live_hole:",livehole)
     except LiveHole.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -220,3 +204,25 @@ def live_hole_read_view(request,room_num):
         print("serializer:",serializer)
         print("serializer.data",serializer.data)
         return Response(serializer.data)
+
+
+@api_view(['POST',])
+def live_hole_join_view(request,hole_num):
+    serializer_class = LiveHoleSerializer # participants가 되어야 함.
+    hole_id = request.data['room']
+
+    hole = LiveHole.objects.filter(id=room_id).first()
+    user = self.request.user
+
+    if(user.username == LiveHole.hole.host): # host일 때
+        serializer= self.serializer_class(data= {'hole' : LiveHole.id, 'user': user.id})
+    else: # audience일 때
+        serializer= self.serializer_class(data= {'hole' : LiveHole.id, 'user': user.id})
+    
+    if serializer.is_valid():
+        serializer.save()
+        hole_serializer = LiveHoleSerializer(hole) # Serializer 수정해야 함.
+
+        return Response(LiveHoleSerializer.data, status = status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -9,14 +9,9 @@ class HoleSerializer(serializers.ModelSerializer):
         model = Hole
         fields = '__all__'
     
-    # def get_username_from_author(self, hole):
-    #     username = hole.host
-    #     return username
-
 
 class LiveHoleSerializer(serializers.ModelSerializer):
     # hole = serializers.PrimaryKeyRelatedField(many=False, queryset=Hole.objects.all())
-
     class Meta:
         model = LiveHole
         # 모델에 있는 컬럼 중에 선택

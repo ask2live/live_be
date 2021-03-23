@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 # import pymysql
 # pymysql.install_as_MySQLdb()
 
@@ -53,7 +54,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-        # 'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_PAGINATION_CLASSES': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE':3,
@@ -64,6 +66,7 @@ PROJECT_APPS = [
     'holes.apps.HolesConfig',
     "hole_reservations.apps.HoleReservationsConfig",
     "core.apps.CoreConfig",
+    "chat_messages.apps.ChatMessagesConfig"
     # "chats.apps.ChatsConfig",
 ]
 
@@ -158,6 +161,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
@@ -182,13 +188,13 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "https://localhost:8000",
 # )
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127']
+ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25']
 # ALLOWED_HOSTS=['*']
 
 
 CORS_ALLOW_METHODS = (
-    'DELETE',
     'GET',
+    'DELETE',
     'OPTIONS',
     'PATCH',
     'POST',
@@ -207,3 +213,8 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'Access-Control-Allow-Origin',
 )
+
+#Authentication backends
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
