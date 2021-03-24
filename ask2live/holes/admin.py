@@ -24,3 +24,13 @@ class LiveHoleAdmin(admin.ModelAdmin):
     ,"host_uid"
     ,"audience_uids"
     )
+
+@admin.register(models.Participants)
+class ParticipantsAdmin(admin.ModelAdmin):
+    list_display = (
+    "id"
+    ,"livehole"
+    ,"user"
+    ,"joined"
+    ,"leaved"
+    )

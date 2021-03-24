@@ -6,7 +6,7 @@ from core import models as core_model
 from django_mysql.models import ListTextField
 from django.db.models import Q
 from django_mysql.models import ListTextField,ListF
-
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 class HoleQuerySet(models.QuerySet):
@@ -55,14 +55,22 @@ class Hole(core_model.AbstractTimeStamp):
     def __str__(self):
         return self.title
 
+    @property
+    def count_participant(self):
+        users = self.liveholes.participants.all()
+        # print("users : ",users)
+        # print(users.count())
+        return users.count()
+
 
 class LiveHole(core_model.AbstractTimeStamp):
-    id = models.CharField(max_length=100,unique=True, primary_key=True)
+    id = models.CharField(max_length=100,primary_key=True, unique=True) # id를 channel number로 바꿔야 할듯.
     hole = models.OneToOneField(Hole,related_name="liveholes", on_delete=models.CASCADE, blank=True)
     # 언제 pariticpant가 join했는지 알려면 테이블을 따로 빼서 ForeignKey로 둬야 할지도..
-    participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True, default='') #null이 들어가도 되는건가?
+    # participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True, default='') #null이 들어가도 되는건가?
     host_uid = models.IntegerField(blank=True,default=0)
     audience_uids = ListTextField( base_field=IntegerField(), size=30,default='')
+    # channel_number = CharField(max_length=100, unique=True) # id를 channel number로 쓸 수 없는 것 같아서 새로 생성.
     # Maximum of 30 ids in list
 
     # def __str__(self):
@@ -72,13 +80,21 @@ class LiveHole(core_model.AbstractTimeStamp):
     #         usernames.append(member.email)
     #     return ", ".join(usernames)
 
-    def audience_append(self, uid):
-        audience_list=ListF('audience_list').append(uid)
-        print(audience_list)
-        return audience_list
-
 
 # particiapants를 따로 클래스로 만드는게 나을듯.
+class Participants(models.Model):
+    livehole = models.ForeignKey(LiveHole, on_delete=models.CASCADE, related_name="participants")
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="participants")
+    joined= models.DateTimeField(auto_now_add=True,editable=False, blank=True)
+    leaved = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return str(self.user)
+    
+    def clean(self):
+        if Participants.objects.filter(user=self.user, leaved__isnull=False).exists():
+            raise ValidationError("a user already exists!")
+
 
 
 class Question(core_model.AbstractTimeStamp):

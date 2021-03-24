@@ -62,12 +62,13 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     """ user model attribute"""
-    nickname = models.CharField(max_length=100,default="Meerkat")
+    nickname = models.CharField(max_length=100,default="Meerkat") # 이거 나중에 unique=True로 만들어야 함.
     profile_image = models.ImageField(blank=True, max_length=255, 
         upload_to = nameFile
     )
     hole_open_auth = models.BooleanField(default=False, blank=True) # 세션 열 수 있는 권한(호스트 여부)
-    work_field = models.TextField(default="", blank=True) # 일하는 분야
+    work_field = models.CharField(max_length=100, default="", blank=True) # 일하는 분야
+    work_company = models.CharField(max_length=100,default="",blank=True)
     login_method = models.CharField(max_length = 50, choices=LOGIN_CHOICES, default=LOGIN_EMAIL)
     followed_count = models.IntegerField(default=0) # 나를 팔로잉하는 사람 수
     following_count = models.IntegerField(default=0) # 내가 팔로잉하는 사람 수
@@ -76,6 +77,10 @@ class User(AbstractUser):
     rating = models.IntegerField(default=0) # 호스트들의 평점
 
     objects = CustomUserManager()
+
+    def get_photo_url(self):
+        profile_img = self.profile_image
+        return profile_img.url
 
 # token authentication
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

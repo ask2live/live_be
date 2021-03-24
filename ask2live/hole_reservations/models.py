@@ -18,7 +18,7 @@ class Reservation(core_model.AbstractTimeStamp):
     target_demand       = models.IntegerField(blank=True, null = True)
     reserve_start_date  = models.DateTimeField(blank=True, null=True)
     finish_date         = models.DateTimeField(blank=True, null = True)
-    guests              = models.ManyToManyField(user_models.User, related_name="hole_reservations",blank=True)
+    guests              = models.ManyToManyField(user_models.User, related_name="hole_reservations",blank=True, default="")
     hole                = models.ForeignKey(hole_models.Hole, related_name="hole_reservations",blank=True, on_delete=models.CASCADE)
 
     def __str__(self):

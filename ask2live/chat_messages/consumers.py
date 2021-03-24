@@ -90,4 +90,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_chat_room(self, room):
         # print("get_chat_room")
         # print("get_chat_room | room : ", room)
-        return LiveHole.objects.get(id=room)
+        return LiveHole.objects.get(id=room) # live hole id말고 channelnum으로 받아오게 하자.
