@@ -214,7 +214,7 @@ def live_hole_read_view(request,channel_num): # 현재 라이브하고있는 그
     try:
         livehole = LiveHole.objects.get(id=channel_num)
         # filter는 여러개 가지고올 수 있고, get은 1개만 가져온다.
-        print("live_hole:",livehole)
+        # print("live_hole:",livehole)
     except LiveHole.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     data = {}
@@ -222,8 +222,8 @@ def live_hole_read_view(request,channel_num): # 현재 라이브하고있는 그
     if request.method == 'GET':
         livehole_serializer = LiveHoleSerializer(livehole)
         participant_serializer = ParticipantSerializer(participant,many=True)
-        print("livehole_serializer.data",livehole_serializer.data)
-        print("participant_serializer.data",participant_serializer.data)
+        # print("livehole_serializer.data",livehole_serializer.data)
+        # print("participant_serializer.data",participant_serializer.data)
         data['livehole'] = livehole_serializer.data
         data['participant'] = participant_serializer.data
         return Response(data, status=status.HTTP_200_OK)
