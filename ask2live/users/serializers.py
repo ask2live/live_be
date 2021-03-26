@@ -28,7 +28,35 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하면 추가해야 함.
+    # nickname = serializers.CharField(read_only=True) # Charfield는 json으로 주기 위한 타입 설정인가?
+    # work_field = serializers.CharField(read_only=True)
+    # work_company = serializers.CharField(read_only=True)
+    # profile_image = serializers.ImageField(max_length=None, use_url=True, allow_null=True, required=False)
     class Meta:
         model = models.User
-        fields = ['pk','email', 'work_field','login_method','rating','hole_open_auth' ]
+        fields = [
+            'pk',
+            'email', 
+            'work_field',
+            'login_method',
+            'rating',
+            'hole_open_auth',
+            'profile_image',
+            'nickname', 
+            'work_company',
+            'bio',
+            ]
+    # def update(self,instance, validated_data):
+    #     print("validated _Data", validated_data)
+    #     instance = self.Meta.model(**validated_data)
+    #     # user = self.context['request'].user
+    #     # instance.hole.host = user 
 
+    #     instance.save()
+    #     return instance
+
+
+class ChangePasswordSerializer(serializers.Serializer): # 비밀번호 변경용
+	old_password 				= serializers.CharField(required=True)
+	new_password 				= serializers.CharField(required=True)
+	confirm_new_password 		= serializers.CharField(required=True)

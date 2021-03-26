@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 # import pymysql
 # pymysql.install_as_MySQLdb()
 
@@ -41,10 +42,11 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-
+    'channels',
     'rest_framework.authtoken',
     'corsheaders',
     "sslserver",
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -52,7 +54,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_PAGINATION_CLASSES': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE':3,
@@ -63,12 +67,14 @@ PROJECT_APPS = [
     'holes.apps.HolesConfig',
     "hole_reservations.apps.HoleReservationsConfig",
     "core.apps.CoreConfig",
+    "chat_messages.apps.ChatMessagesConfig"
     # "chats.apps.ChatsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,7 +82,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -98,8 +103,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
-
+ASGI_APPLICATION = 'config.routing.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -112,9 +116,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
 
-            'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
+            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
             # 'read_default_file': '/etc/mysql/my.cnf',
-            # 'read_default_file': '/usr/local/etc/my.cnf',
+            'read_default_file': '/usr/local/etc/my.cnf',
         },
     }
 }
@@ -157,6 +161,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
@@ -172,19 +179,22 @@ EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
 
 ##CORS
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = (
-    "https://143.248.198.125:8000",
-    "https://143.248.232.138:3000",
-    "https://143.248.229.22:3000",
-)
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = (
+#     "https://143.248.198.125:8000",
+#     "https://143.248.232.138:3000",
+#     "https://143.248.232.143:3000",
+#     "https://localhost:3000",
+#     "https://localhost:8000",
+# )
 CORS_ALLOW_CREDENTIALS = True
-# ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.229.22']
-ALLOWED_HOSTS=['*']
+ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156']
+# ALLOWED_HOSTS=['*']
+
 
 CORS_ALLOW_METHODS = (
-    'DELETE',
     'GET',
+    'DELETE',
     'OPTIONS',
     'PATCH',
     'POST',
@@ -201,4 +211,31 @@ CORS_ALLOW_HEADERS = (
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'Access-Control-Allow-Origin',
 )
+
+#Authentication backends
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": ['redis://localhost:6379/4']
+            # "hosts": [os.environ.get("REDIS_URL", "redis://localhost:6379")],
+        },
+    },
+}
+
+# swagger settings
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}
