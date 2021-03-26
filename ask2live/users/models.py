@@ -75,6 +75,7 @@ class User(AbstractUser):
     social_account = models.CharField(max_length=50, choices=SOCIAL_ACCOUNT, null=True, blank=True)
     bio = models.TextField(default="", blank=True)
     rating = models.IntegerField(default=0) # 호스트들의 평점
+    uid = models.IntegerField(blank=True, default=0)
 
     objects = CustomUserManager()
 

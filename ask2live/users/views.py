@@ -28,15 +28,16 @@ def registration_view(request):
 
         if serializer.is_valid():
             account = serializer.save()
-            data['response'] = "registration success."
-            data['email'] = account.email
+            data['response'] = "SUCESS"
+            data['detail'] = {}
+            data['detail']['email'] = account.email
             # data['username'] = account.username
-            data['work_field'] = account.work_field
-            data['pk'] = account.pk
-            data['hole_open_auth'] = account.hole_open_auth
+            data['detail']['work_field'] = account.work_field
+            data['detail']['pk'] = account.pk
+            data['detail']['hole_open_auth'] = account.hole_open_auth
             token = Token.objects.get(user=account).key
             print("회원가입 시 token:",token)
-            data['token'] = token
+            data['detail']['token'] = token
         else:
             data= serializer.errors
         return Response(data)
@@ -67,14 +68,14 @@ class ObtainAuthTokenView(APIView): # login용 View를 추가
             except Token.DoestNotExist:
                 token = Token.objects.create(user=account)
             print("로그인 시 token:",token)
-            context['response'] = 'Successfully login'
-            context['pk'] = account.pk
-            context['email'] = email.lower()
+            context['response'] = 'SUCCESS'
             context['token'] = token.key
-            context['hole_open_auth'] = account.hole_open_auth
+            # context['pk'] = account.pk
+            # context['email'] = email.lower()
+            # context['hole_open_auth'] = account.hole_open_auth
         else:
-            context['response'] = 'Error occurs'
-            context['error_message'] = 'Invalid credentials'
+            context['response'] = 'FAIL'
+            context['detail'] = '확인 된 사용자가 아닙니다.'
         return Response(context)
 
 class Logout(APIView):
@@ -85,13 +86,14 @@ class Logout(APIView):
         # print(request.user.auth_token)
         request.user.auth_token.delete()
         data = {}
-        data['response'] = 'success'
+        data['response'] = 'SUCCESS'
         return Response(data)
 
 @api_view(['GET',])
 @permission_classes([IsAuthenticatedOrReadOnly,]) #특정 유저 조회할 때는 허가 필요
 # @permission_classes((IsAuthenticated,)) #특정 유저 조회할 때는 허가 필요
 def user_properties_view(request):
+    data = {}
     try:
         # print("request_user",request)
         account = request.user
@@ -102,25 +104,31 @@ def user_properties_view(request):
         # account = models.User.objects.all()
         # account = models.User.objects.filter(email=account)
         serializer = UserPropertiesSerializer(account)
+        data['response'] = 'SUCCESS'
+        data['detail'] = serializer.data
         # serializer = UserPropertiesSerializer(account,many=True)
-        return Response(serializer.data)
+        return Response(data)
 
-@api_view(['PUT',])
+@api_view(['PATCH',])
 @permission_classes((IsAuthenticated,)) #특정 유저 수정할 때는 허가 필요
 def user_update_view(request):
     try:
         account = request.user
     except Account.DoesNotExist:
         return response(status=status.HTTP_404_NOT_FOUND)
-    if request.method== 'PUT':
-        serializer = UserPropertiesSerializer(account, data=request.data)
+    if request.method== 'PATCH':
         data= {}
+        user = models.User.objects.get(email=account)
+        serializer = UserPropertiesSerializer(user, data=request.data,partial=True)
+        print("serializer : ",serializer)
         if serializer.is_valid():
             serializer.save()
-            data['response'] = 'Update Success'
+            data['response'] = 'SUCCESS'
             return Response(data=data)
         else:
-            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            data['response'] = 'FAIL'
+            data['detail'] = '유효한 정보가 아닙니다.'
+            return Response(data, status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', ])
 @permission_classes([])

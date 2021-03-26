@@ -42,10 +42,11 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-
+    'channels',
     'rest_framework.authtoken',
     'corsheaders',
     "sslserver",
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -102,8 +103,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
-
+ASGI_APPLICATION = 'config.routing.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -188,7 +188,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "https://localhost:8000",
 # )
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25']
+ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156']
 # ALLOWED_HOSTS=['*']
 
 
@@ -218,3 +218,27 @@ CORS_ALLOW_HEADERS = (
 AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
     )
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": ['redis://localhost:6379/4']
+            # "hosts": [os.environ.get("REDIS_URL", "redis://localhost:6379")],
+        },
+    },
+}
+
+# swagger settings
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Basic': {
+            'type': 'basic'
+      },
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}

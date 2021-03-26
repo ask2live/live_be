@@ -68,7 +68,7 @@ class LiveHole(core_model.AbstractTimeStamp):
     hole = models.OneToOneField(Hole,related_name="liveholes", on_delete=models.CASCADE, blank=True)
     # 언제 pariticpant가 join했는지 알려면 테이블을 따로 빼서 ForeignKey로 둬야 할지도..
     # participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True, default='') #null이 들어가도 되는건가?
-    host_uid = models.IntegerField(blank=True,default=0)
+    host_uid = models.IntegerField(blank=True,default=0) # User에 uid를 넣어놓을거면 사실 여기서 직접 필드 설정할 필요는 없을듯.
     audience_uids = ListTextField( base_field=IntegerField(), size=30,default='')
     # channel_number = CharField(max_length=100, unique=True) # id를 channel number로 쓸 수 없는 것 같아서 새로 생성.
     # Maximum of 30 ids in list
@@ -101,3 +101,5 @@ class Question(core_model.AbstractTimeStamp):
     user = models.ForeignKey("users.User", related_name="questions", on_delete=models.CASCADE)
     hole = models.ForeignKey(Hole, related_name="questions", on_delete=models.CASCADE)
     question = models.TextField(blank=True, default="")
+    is_voice = models.BooleanField(default=False)
+    is_answered = models.BooleanField(default=False)

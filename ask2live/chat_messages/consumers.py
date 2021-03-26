@@ -21,26 +21,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        # print("connect")
+        print("WS Chat connect :: ")
         await self.accept()
         await self.fetch_messages(room)
     
     # leave room group
     async def disconnect(self, close_code):
+        print("WS Chat disconnect")
         await self.channel_layer.group_discard(
             self.room_group_name, 
             self.channel_name)
 
-    # receive에서 쓸 커맨드 목록
-     commands = {
-        'fetch_messages': fetch_messages,
-        'new_message': new_message
-    }
     
     # receive message from the socket
     async def receive(self, text_data):
         data = json.loads(text_data)
-        # print("receive:",data)
+        print("WS Chat receive")
         await self.commands[data['command']](self, data['data'])
 
 
@@ -54,7 +50,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'send_message', 
                 'message': messages 
                 })
+    # saves message to db and fetch messages(room으로부터 메세지 받아오고 group에 보내기) again
+    async def new_message(self, data):
+        print("data:", data)
+        text = data['text']
+        username = data['sender']
+        # print("new_message")
+        await self.create_room_message(text, username, self.room_name)
+        await self.fetch_messages(self.room_name)
 
+    # receive에서 쓸 커맨드 목록
+    commands = {
+        'fetch_messages': fetch_messages,
+        'new_message': new_message
+    }
     # finally send message to the socket
     async def send_message(self, event):
         message = event['message']
@@ -62,13 +71,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
         await self.send(text_data=message)
     
-    # saves message to db and fetch messages(room으로부터 메세지 받아오고 group에 보내기) again
-    async def new_message(self, data):
-        text = data['text']
-        username = data['sender']
-        # print("new_message")
-        await self.create_room_message(text, username, self.room_name)
-        await self.fetch_messages(self.room_name)
 
     @database_sync_to_async #-> 정확한 의미 알기
     def create_room_message(self, text, username, room):

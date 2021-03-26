@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from holes.models import Hole, LiveHole,Participants
+from holes.models import Hole, LiveHole,Participants,Question
 from hole_reservations.serializers import HoleReservationSerializer
+from datetime import datetime, timedelta
+from dateutil.parser import parse
 
 class HoleSerializer(serializers.ModelSerializer):
     host = serializers.CharField(read_only=True, source = 'host.id')
@@ -13,7 +15,6 @@ class HoleSerializer(serializers.ModelSerializer):
             "created",
             "updated",
             "title",
-            "subtitle",
             "description",
             "status",
             "reserve_date",
@@ -21,14 +22,23 @@ class HoleSerializer(serializers.ModelSerializer):
             "host",
             "rating",
         ]
+        extra_kwargs = {
+            "status": {"required": False, 'read_only': True},
+            "rating": {"required": False, 'read_only': True},
+            "finish_date": {"required": False},
+            }
     def create(self, validated_data): # serializer save 할때 호출됨.
-        # print("instance validated_data: ", validated_data)
+        # print("hole validated_data: ", validated_data)
         instance = self.Meta.model(**validated_data)
         # print("instance : ", instance)
+        finish_date = validated_data['reserve_date'] + timedelta(days=1)
         user = self.context['request'].user
+        # user = validated_data['user']
         instance.host = user 
+        instance.finish_date = finish_date
         instance.save()
         return instance
+
 
 class HoleListSerializer(serializers.ModelSerializer):
     host_nickname = serializers.CharField(source='host.nickname', read_only=True)
@@ -96,13 +106,47 @@ class LiveHoleSerializer(serializers.ModelSerializer):
     #     return livehole
 
 class ParticipantSerializer(serializers.ModelSerializer):
+    profile_image_url = serializers.ImageField(source='user.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
+    nickname = serializers.CharField(source='user.nickname',read_only=True)
+    work_field = serializers.CharField(source='user.work_field', read_only=True)
+    work_company = serializers.CharField(source='user.work_company', read_only=True)
     class Meta:
         model = Participants
         fields = [
           'id', 
           'livehole', 
           'user',
+          'profile_image_url',
+          'nickname',
+          'work_field',
+          'work_company',
           'joined',
           'leaved'
         ]
         read_only_fields = ['id']
+
+class QuestionSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(read_only=True, source='user.id')
+    user_uid = serializers.IntegerField(read_only=True, source='user.uid')
+    hole = serializers.CharField(read_only=True, source='hole.id')
+    class Meta:
+        model= Question
+        fields = [
+            "id",
+            "user",
+            "user_uid",
+            "hole",
+            "question",
+            "is_voice",
+            "is_answered",
+        ]
+    def create(self, validated_data): # serializer save 할때 호출됨.
+        instance = self.Meta.model(**validated_data) # validated_data에 pk도 들어옴.
+        # instance에는 Question 모델 object가 담김.
+        user = self.context['request'].user
+        hole = Hole.objects.get(id=validated_data['hole'].id)
+        # hole = validated_data['pk']
+        instance.user = user 
+        instance.hole = hole
+        instance.save()
+        return instance

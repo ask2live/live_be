@@ -8,9 +8,10 @@ class HoleReservationAdmin(admin.ModelAdmin):
         "id"
         ,"hole"
         ,"status"
-        ,"reserve_start_date"
+        ,"reserve_date"
         ,"finish_date"
         ,"target_demand"
-        ,"__str__"
+        ,"current_demand"
+        ,"guests_list"
     )
 

@@ -34,3 +34,14 @@ class ParticipantsAdmin(admin.ModelAdmin):
     ,"joined"
     ,"leaved"
     )
+
+@admin.register(models.Question)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = (
+    "id"
+    ,"user"
+    ,"hole"
+    ,"question"
+    ,"is_voice"
+    ,"is_answered"
+    )

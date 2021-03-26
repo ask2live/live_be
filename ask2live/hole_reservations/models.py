@@ -15,15 +15,18 @@ class Reservation(core_model.AbstractTimeStamp):
     )
     # host                = models.ForeignKey(user_models.User, related_name="hole_reservations", on_delete=models.CASCADE)
     status              = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    target_demand       = models.IntegerField(blank=True, null = True)
-    reserve_start_date  = models.DateTimeField(blank=True, null=True)
+    target_demand       = models.IntegerField(blank=True, default=0)
+    current_demand      = models.IntegerField(default=0)
+    reserve_date  = models.DateTimeField(blank=True, null=True)
     finish_date         = models.DateTimeField(blank=True, null = True)
     guests              = models.ManyToManyField(user_models.User, related_name="hole_reservations",blank=True, default="")
     hole                = models.ForeignKey(hole_models.Hole, related_name="hole_reservations",blank=True, on_delete=models.CASCADE)
 
-    def __str__(self):
-        usernames = []
-        all_member = self.guests.all()
-        for member in all_member:
-            usernames.append(member.email)
-        return ", ".join(usernames)
+    def guests_list(self): # 어드민에 게스트 리스트 보여주기, for loop 안 돌리고도 보여주기가 가능.
+        return list(self.guests.values_list('email',flat=True))
+    #     # return self.hole
+    #     usernames = []
+    #     all_member = self.guests.all()
+    #     for member in all_member:
+    #         usernames.append(member.email)
+    #     return ", ".join(usernames)
