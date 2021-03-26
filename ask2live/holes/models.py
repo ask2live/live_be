@@ -15,7 +15,7 @@ class HoleQuerySet(models.QuerySet):
         queryset = self
         if query is not None:
             or_lookup = (Q(title__icontains=query) |
-                        Q(subtitle__icontains=query) 
+                        Q(subtitle__icontains=query) |
                         Q(description__icontains=query) &
                         Q(status__icontains=query)
                         )
