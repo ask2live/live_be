@@ -27,43 +27,9 @@ class ReservationList(ListAPIView):
         # queryset = queryset.filter(user=request.user)
         return queryset
 
-
-@api_view(['POST',])
-# @permission_classes((IsAuthenticated,))
-def reserve_create_view(request, hole_id):
-    if request.method == "POST":
-
-        # try:
-        #     hole = Hole.objects.get(pk=pk)
-        # except Hole.DoesNotExist:
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-        
-        updated_hole = Hole.objects.get(pk=hole_id)
-        serializer = HoleReservationSerializer(data=request.data)
-
-        if serializer.is_valid():
-
-            # 딕셔너리라서 추출해야함 ;;
-            start = serializer.validated_data['reserve_start_date']
-            end = serializer.validated_data['finish_date']
-
-            # 기존 hole 정보 변경
-            updated_hole.reserve_date = start
-            updated_hole.finish_date = end
-            updated_hole.save()
-
-            serializer.save()
-            # queryset.reserve_date = serializer['reserve_start_date']
-            # queryset.finish_date = serializer['finish_date']
-
-            # data['reserve_date'] = queryset.reserve_date
-            
-        else:
-            data = serializer.errors
-        return Response(serializer.data)
+# reserve_wish_view 만들기 (PATCH로 만들어야 하나?)
 
 
-            
 
 @api_view(['PUT',])
 # @permission_classes((IsAuthenticated,))

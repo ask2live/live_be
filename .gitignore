@@ -154,6 +154,11 @@ dmypy.json
 venv/
 .idea/
 
+# cert
+*.crt
+*.key
+*.conf
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 
