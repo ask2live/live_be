@@ -15,7 +15,7 @@ class HoleReservationSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "status": {"required": False, 'read_only': True},
             "guests": {"required": False, "allow_null": True},
-            "hole" : {'read_only': True}
+            # "hole" : {'read_only': True} 이걸 넣으면 validated_data에 hole이 안들어옴.
             }
     def create(self, validated_data):
         print("validated_data : ", validated_data)

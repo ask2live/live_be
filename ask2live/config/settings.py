@@ -232,10 +232,7 @@ CHANNEL_LAYERS = {
 # swagger settings
 SWAGGER_SETTINGS = {
    'SECURITY_DEFINITIONS': {
-      'Basic': {
-            'type': 'basic'
-      },
-      'Bearer': {
+      'Token': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'

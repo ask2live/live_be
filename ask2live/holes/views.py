@@ -23,21 +23,27 @@ from django_mysql.models import ListF
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
 
+
+@swagger_auto_schema(methods=['post'], request_body=HoleSerializer, operation_description="POST /hole/create")
 @api_view(['POST',])
 @permission_classes([IsAuthenticated,])
 def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 만들어져야 함.
      if request.method == 'POST':
+        print("request : ", request.data)
         account = request.user
-        reserve_start_date = request.data.get('reserve_date')
-        finish_date = parse(reserve_start_date) + timedelta(days=1)
+        reserve_date = request.data.get('reserve_date')
+        finish_date = parse(reserve_date) + timedelta(days=1)
         target_demand = request.data.get('target_demand')
         hole_serializer = HoleSerializer(context = {'request':request},data=request.data)
         # print("hole_serializer : ", hole_serializer)
         data = {}
         if hole_serializer.is_valid(): 
             hole_serializer.save()
+            print("hole_serializer : ", hole_serializer.data)
             pk = hole_serializer.data['id']
+            print("pk: ", pk)
             hole = Hole.objects.get(id=pk)
             # print("hole_serializer data : ",hole_serializer.data)
             # print("hole: ", hole.id)
@@ -68,6 +74,7 @@ def hole_detail_view(request): #hole 상세정보 보는 api
     return Response(serializer.data)
 
 
+@swagger_auto_schema(methods=['PATCH'], request_body=HoleSerializer, operation_description="PATCH /hole/update/{hole_id}")
 @api_view(['PATCH',])
 @permission_classes([IsAuthenticated,])
 def hole_update_view(request, hole_id): # 특정 hole update하기
@@ -179,6 +186,7 @@ class HoleSearchView(ListAPIView): # hole을 찾는 api
 
 
 # Live Hole을 만드는 기능. room_number랑 uid 받을 거임.
+@swagger_auto_schema(methods=['POST'], request_body=LiveHoleSerializer, operation_description="POST /hole/update/{hole_id}")
 @api_view(['POST',])
 @permission_classes([IsAuthenticated,])
 def live_hole_create_view(request,pk):
@@ -225,6 +233,7 @@ def live_hole_create_view(request,pk):
             return Response(data)
 
 # audience list를 update하는 api
+@swagger_auto_schema(methods=['PUT'], request_body=LiveHoleSerializer, operation_description="PUT /hole/update/{hole_id}")
 @api_view(['PUT',])
 @permission_classes([])
 def live_hole_update_view(request,pk,channel_num): # 우리는 url로 channel_num을 넘겨줌.
