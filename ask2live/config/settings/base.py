@@ -14,18 +14,15 @@ from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = 'd#gk+eoz7#tn+bfh83tqu%w6n94i%2^5p)jo4-(8y_17vcbg^z'
 
-ALLOWED_HOSTS = ['143.248.226.51', '143.248.198.61','3.36.88.31','223.39.140.19']
 # ALLOWED_HOSTS = []
 
 # Application definition
@@ -104,20 +101,7 @@ ASGI_APPLICATION = 'config.routing.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/etc/mysql/my.cnf',
-            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
-            # 'read_default_file': '/usr/local/etc/my.cnf',
-        },
-    }
-}
+
 
 
 # Password validation
@@ -157,6 +141,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, "collect_static")
+STATICFILES_DIRS = [
+     BASE_DIR / 'static',
+]
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -185,7 +174,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-ALLOWED_HOSTS=['3.36.88.31','143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156']
 # ALLOWED_HOSTS=['*']
 
 
