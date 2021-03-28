@@ -5,16 +5,18 @@ from core import models as core_model
 # Create your models here.
 
 class Reservation(core_model.AbstractTimeStamp):
-    STATUS_PENDING = "pending"
-    STATUS_CONFIRMED= "confirmed"
-    STATUS_CANCELED = "canceled"
+    STATUS_PENDING = "PENDING"
+    STATUS_CONFIRMED= "CONFIRMED"
+    STATUS_HOST_CONFIRMED= "HOST_CONFIRMED"
+    STATUS_CANCELED = "CANCELED"
     STATUS_CHOICES = (
-        (STATUS_PENDING, "Pending"),
-        (STATUS_CONFIRMED, "Confirmed"),
-        (STATUS_CANCELED, "Canceled"),
+        (STATUS_PENDING, "PENDING"),
+        (STATUS_CONFIRMED, "CONFIRMED"),
+        (STATUS_HOST_CONFIRMED, "HOST_CONFIRMED"),
+        (STATUS_CANCELED, "CANCELED"),
     )
     # host                = models.ForeignKey(user_models.User, related_name="hole_reservations", on_delete=models.CASCADE)
-    status              = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    status              = models.CharField(max_length=30, choices=STATUS_CHOICES, default=STATUS_PENDING)
     target_demand       = models.IntegerField(blank=True, default=0)
     current_demand      = models.IntegerField(default=0)
     reserve_date  = models.DateTimeField(blank=True, null=True)

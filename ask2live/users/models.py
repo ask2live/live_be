@@ -62,7 +62,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     """ user model attribute"""
-    nickname = models.CharField(max_length=100,default="Meerkat") # 이거 나중에 unique=True로 만들어야 함.
+    nickname = models.CharField(max_length=100,unique=True) # 이거 나중에 unique=True로 만들어야 함.
     profile_image = models.ImageField(blank=True, max_length=255, 
         upload_to = nameFile
     )

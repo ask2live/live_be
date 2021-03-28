@@ -6,6 +6,7 @@ class HoleReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Reservation
         fields = [
+            'id',
             'target_demand', 
             'reserve_date', 
             'finish_date',

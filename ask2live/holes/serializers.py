@@ -28,9 +28,7 @@ class HoleSerializer(serializers.ModelSerializer):
             "finish_date": {"required": False},
             }
     def create(self, validated_data): # serializer save 할때 호출됨.
-        # print("hole validated_data: ", validated_data)
         instance = self.Meta.model(**validated_data)
-        # print("instance : ", instance)
         finish_date = validated_data['reserve_date'] + timedelta(days=1)
         user = self.context['request'].user
         # user = validated_data['user']
@@ -81,11 +79,13 @@ class HoleListSerializer(serializers.ModelSerializer):
 
 class LiveHoleSerializer(serializers.ModelSerializer):
     # hole = serializers.PrimaryKeyRelatedField(many=False, queryset=Hole.objects.all())
-    host = serializers.CharField(read_only=True, source = 'hole.host.email')
+    host = serializers.CharField(read_only=True, source = 'hole.host.id')
+    host_nickname = serializers.CharField(read_only=True, source = 'hole.host.nickname')
+    host_profile_image_url = serializers.CharField(read_only=True, source = 'hole.host.profile_image')
     class Meta:
         model = LiveHole
         # 모델에 있는 컬럼 중에 선택
-        fields = ['id', 'host_uid', 'audience_uids', 'hole','host'] 
+        fields = ['id', 'host_uid', 'audience_uids', 'hole','host','host_nickname', 'host_profile_image_url'] 
         
     def create(self, validated_data):
         instance = self.Meta.model(**validated_data)
@@ -127,6 +127,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     user = serializers.CharField(read_only=True, source='user.id')
+    user_nickname = serializers.CharField(read_only=True, source='user.nickname')
     user_uid = serializers.IntegerField(read_only=True, source='user.uid')
     hole = serializers.CharField(read_only=True, source='hole.id')
     class Meta:
@@ -135,6 +136,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "user_uid",
+            "user_nickname",
             "hole",
             "question",
             "is_voice",

@@ -5,7 +5,11 @@ from .views import (
    reserve_update_view,
     reserve_delete_view,
 )
-from holes.views import hole_wish_view,hole_wish_cancel_view
+from holes.views import (
+    hole_wish_view,
+    hole_wish_cancel_view,
+    host_hole_confirm_view
+    )
 
 app_name="hole_reservations"
 
@@ -16,5 +20,5 @@ urlpatterns = [
     path('delete/<int:hole_id>/', reserve_delete_view, name="delete"),
     path('hole/<int:pk>/wish', hole_wish_view, name="wish"),
     path('hole/<int:pk>/wishcancel', hole_wish_cancel_view, name="wish_cancel"),
-    # path('logout', Logout.as_view(), name="logout"),
+    path('hole/<int:pk>/hostconfirm', host_hole_confirm_view, name="host_confirm"),
 ]
