@@ -6,12 +6,14 @@ from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
 
 from . import models
-from .serializers import RegistrationSerializer,UserPropertiesSerializer,ChangePasswordSerializer
+from .serializers import RegistrationSerializer,UserPropertiesSerializer,ChangePasswordSerializer,AllUserPropertiesSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView # logout용 API VIEW
 from rest_framework.generics import UpdateAPIView
+from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
+@swagger_auto_schema(methods=['POST'], request_body=RegistrationSerializer, operation_description="POST /user/register")
 @api_view(['POST',])
 @permission_classes([]) # 회원 가입할 때는 permission을 따로 적용하지 않기 때문에 빈 값으로.
 @authentication_classes([]) #회원 가입 할 때 인증을 따로 적용하지 않기 때문에 빈 값으로.
@@ -31,7 +33,7 @@ def registration_view(request):
             data['response'] = "SUCESS"
             data['detail'] = {}
             data['detail']['email'] = account.email
-            # data['username'] = account.username
+            data['nickname'] = account.nickname
             data['detail']['work_field'] = account.work_field
             data['detail']['pk'] = account.pk
             data['detail']['hole_open_auth'] = account.hole_open_auth
@@ -51,9 +53,14 @@ def validate_email(email):
     if account != None:
         return email
 
+
 class ObtainAuthTokenView(APIView): # login용 View를 추가
     authentication_classes= []
     permission_classes = []
+    @swagger_auto_schema(
+        # method=['POST'],
+        request_body=UserPropertiesSerializer, 
+        operation_description="POST /user/login")
 
     def post(self,request):
         context = {}
@@ -109,6 +116,7 @@ def user_properties_view(request):
         # serializer = UserPropertiesSerializer(account,many=True)
         return Response(data)
 
+@swagger_auto_schema(methods=['PATCH'], request_body=UserPropertiesSerializer, operation_description="PATCH /user/update")
 @api_view(['PATCH',])
 @permission_classes((IsAuthenticated,)) #특정 유저 수정할 때는 허가 필요
 def user_update_view(request):
@@ -129,6 +137,20 @@ def user_update_view(request):
             data['response'] = 'FAIL'
             data['detail'] = '유효한 정보가 아닙니다.'
             return Response(data, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET',])
+@permission_classes([]) # 전체 유저 조회
+def all_user_properties_view(request):
+    data = {}
+    if request.method == 'GET':
+        account = models.User.objects.all()
+        # account = models.User.objects.filter(email=account)
+        serializer = AllUserPropertiesSerializer(account, many=True)
+        data['response'] = 'SUCCESS'
+        data['detail'] = serializer.data
+        # serializer = UserPropertiesSerializer(account,many=True)
+        return Response(data)
+
 
 @api_view(['GET', ])
 @permission_classes([])
