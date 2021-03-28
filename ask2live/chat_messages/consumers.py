@@ -52,11 +52,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 })
     # saves message to db and fetch messages(room으로부터 메세지 받아오고 group에 보내기) again
     async def new_message(self, data):
-        print("data:", data)
+        print("new_message data1:", data['sender'])
+        print("new_message data2:", data)
         text = data['text']
         username = data['sender']
         # print("new_message")
         await self.create_room_message(text, username, self.room_name)
+        print("username new_message : ", username)
         await self.fetch_messages(self.room_name)
 
     # receive에서 쓸 커맨드 목록
@@ -74,7 +76,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async #-> 정확한 의미 알기
     def create_room_message(self, text, username, room):
-        author = User.objects.get(email=username) # 이메일 아니면 username으로
+        author = User.objects.get(nickname=username) # 이메일 아니면 username으로
+        print("author : ", author)
+        print("author : ", author.nickname)
         room = LiveHole.objects.get(id=room)
         # print("create_room_message")
         return Message.objects.create(sender=author, text=text, livehole=room)
@@ -84,7 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # print("get_serialized_messages room : ", room)
         messages = Message.objects.filter(livehole=room)
         serializer = MessageSerializer(messages, many=True)
-        # print("get_serialized_messages serializer : ", serializer)
+        # print("get_serialized_messages serializer : ", serializer.data)
         # print("get_serialized_messages")
         return json.dumps(serializer.data)
     

@@ -31,34 +31,37 @@ from drf_yasg.utils import swagger_auto_schema
 @permission_classes([IsAuthenticated,])
 def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 만들어져야 함.
      if request.method == 'POST':
-        print("request : ", request.data)
+        print("request : ", request)
         account = request.user
         reserve_date = request.data.get('reserve_date')
+        print("reserve_date : ", reserve_date)
         finish_date = parse(reserve_date) + timedelta(days=1)
         target_demand = request.data.get('target_demand')
         hole_serializer = HoleSerializer(context = {'request':request},data=request.data)
         # print("hole_serializer : ", hole_serializer)
         data = {}
+        
         if hole_serializer.is_valid(): 
             hole_serializer.save()
             print("hole_serializer : ", hole_serializer.data)
             pk = hole_serializer.data['id']
             print("pk: ", pk)
             hole = Hole.objects.get(id=pk)
-            # print("hole_serializer data : ",hole_serializer.data)
-            # print("hole: ", hole.id)
             reservation_serializer = HoleReservationSerializer(
                 data={
                     "hole":hole.id, 
-                    "reserve_date": reserve_date, "finish_date":finish_date, 
+                    "reserve_date": reserve_date, 
+                    "finish_date":finish_date, 
                     "target_demand":target_demand
                     })
             if reservation_serializer.is_valid():
                 reservation_serializer.save()
+                reservation_id = reservation_serializer.data['id']
+                reservation = Reservation.objects.get(id=reservation_id)
+                if int(target_demand) == 0:
+                    reservation.status = 'CONFIRMED'
+                    reservation.save()
             data['response'] = 'SUCCESS'
-            # data['detail'] = {}
-            # data['detail']['hole'] = hole_serializer.data
-            # data['detail']['reservation'] = reservation_serializer.data
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             data['response'] = 'FAIL'
@@ -311,6 +314,7 @@ def live_hole_read_view(request,channel_num): # 현재 라이브하고있는 그
         data['detail']['participant'] = participant_serializer.data
         return Response(data, status=status.HTTP_200_OK)
 
+@swagger_auto_schema(methods=['post'], request_body=QuestionSerializer, operation_description="POST /question/create")
 @api_view(['POST',])
 @permission_classes([IsAuthenticated,])
 def hole_question_register_view(request,pk):
@@ -414,14 +418,14 @@ def hole_wish_view(request,pk):
         print("reservation : ", reservation)
         print("reservation : ", reservation.guests)
         wish_user_obj = user_models.User.objects.get(email=user)
-        if wish_user_obj.hole_reservations.filter(guests=user).exists(): # many to many field의 reverse accessor 활용
+        if wish_user_obj.hole_reservations.filter(id=reservation.id, guests=user).exists(): # many to many field의 reverse accessor 활용
             data['response'] = 'FAIL'
             data['detail'] = '중복 신청은 할 수 없습니다.'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
         else:
             reservation.guests.add(user)
         if reservation.current_demand == reservation.target_demand:
-            reservation.status = "confirmed"
+            reservation.status = "CONFIRMED"
         reservation.save()
         data["response"] = "SUCCESS"
         return Response(data=data)
@@ -456,8 +460,33 @@ def hole_wish_cancel_view(request,pk):
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
         
         if reservation.current_demand < reservation.target_demand:
-            reservation.status = "pending"
+            reservation.status = "PENDING"
         reservation.save()
+        data["response"] = "SUCCESS"
+        return Response(data=data)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated,])
+def host_hole_confirm_view(request,pk):
+    data={}
+    try:
+        hole = Hole.objects.get(id=pk)
+    except hole.DoesNotExist:
+        data['response'] = 'FAIL'
+        data['detail'] = '호스트가 예약 확정 요청을 할 방이 없습니다.'
+        return Response(data, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'PATCH':
+        reservation = Reservation.objects.get(hole=hole)
+        user = request.user
+        if user != hole.host:
+            data['response'] = 'FAIL'
+            data['detail'] = '호스트만 예약 확정을 할 수 있습니다.'
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)        
+
+        reservation.status = "HOST_CONFIRMED"
+        reservation.save()
+        # 상태가 바뀌었으니 예약요청한 게스트에게 메일 보내기가 구현되어야 함.
         data["response"] = "SUCCESS"
         return Response(data=data)
         
