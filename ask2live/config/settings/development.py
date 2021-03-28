@@ -1,8 +1,8 @@
 from .base import *
-
+import os
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',

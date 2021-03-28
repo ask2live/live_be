@@ -41,16 +41,17 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
         data = {}
         if hole_serializer.is_valid(): 
             hole_serializer.save()
-            print("hole_serializer : ", hole_serializer.data)
+            # print("hole_serializer : ", hole_serializer.data)
             pk = hole_serializer.data['id']
-            print("pk: ", pk)
+            # print("pk: ", pk)
             hole = Hole.objects.get(id=pk)
             # print("hole_serializer data : ",hole_serializer.data)
             # print("hole: ", hole.id)
             reservation_serializer = HoleReservationSerializer(
                 data={
                     "hole":hole.id, 
-                    "reserve_date": reserve_date, "finish_date":finish_date, 
+                    "reserve_date": reserve_date, "
+                    finish_date":finish_date, 
                     "target_demand":target_demand
                     })
             if reservation_serializer.is_valid():
@@ -460,4 +461,3 @@ def hole_wish_cancel_view(request,pk):
         reservation.save()
         data["response"] = "SUCCESS"
         return Response(data=data)
-        
