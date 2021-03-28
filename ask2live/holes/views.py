@@ -468,6 +468,8 @@ def hole_wish_cancel_view(request,pk):
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated,])
 def host_hole_confirm_view(request,pk):
+    print("request : ", request)
+    print("request user : ", request.user)
     data={}
     try:
         hole = Hole.objects.get(id=pk)
@@ -483,7 +485,10 @@ def host_hole_confirm_view(request,pk):
             data['response'] = 'FAIL'
             data['detail'] = '호스트만 예약 확정을 할 수 있습니다.'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)        
-
+        if reservation.status != 'CONFIRMED':
+            data['response'] = 'FAIL'
+            data['detail'] = '예약 세션이 confirmed 상태가 아닙니다.'
+            return Response(data, status=status.HTTP_400_BAD_REQUEST) 
         reservation.status = "HOST_CONFIRMED"
         reservation.save()
         # 상태가 바뀌었으니 예약요청한 게스트에게 메일 보내기가 구현되어야 함.
