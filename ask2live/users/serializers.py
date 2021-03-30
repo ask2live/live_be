@@ -28,36 +28,51 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하면 추가해야 함.
-    class Meta:
-        model = models.User
-        fields = [
-            'pk',
-            'email', 
-            'work_field',
-            'login_method',
-            'rating',
-            'hole_open_auth',
-            'profile_image',
-            'nickname', 
-            'work_company',
-            'bio',
-            ]
-
-class AllUserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하면 추가해야 함.
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
     class Meta:
         model = models.User
         fields = [
             'id',
             'email', 
             'nickname', 
-            'hole_open_auth',
             'work_field',
             'work_company',
-            'bio',
+            'hole_open_auth',
             'profile_image',
             'rating',
             'login_method',
+            'bio',
+            'following',
+            'followers'
             ]
+    def get_following(self, obj):
+        follow = FollowingMeSerializer(obj.following.all(), many=True).data
+        print("get_following : ", follow)
+        return follow
+    def get_followers(self,obj):
+        followers = MeFollowersSerializer(obj.followers.all(), many=True).data
+        print("get_followers : ", followers)
+        return followers
+
+class FollowingMeSerializer(serializers.ModelSerializer): # 나를 following 하는
+    class Meta:
+        model= models.UserFollowing
+        fields = [
+            'id',
+            'following_user_id',
+            'created'
+        ]
+
+class MeFollowersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserFollowing
+        fields = [
+            'id',
+            'user_id',
+            'created'
+        ]
+
 
 
 class ChangePasswordSerializer(serializers.Serializer): # 비밀번호 변경용

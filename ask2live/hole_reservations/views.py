@@ -30,7 +30,6 @@ class ReservationList(ListAPIView):
 # reserve_wish_view 만들기 (PATCH로 만들어야 하나?)
 
 
-
 @api_view(['PUT',])
 # @permission_classes((IsAuthenticated,))
 def reserve_update_view(request, hole_id):
@@ -62,11 +61,6 @@ def reserve_update_view(request, hole_id):
 @api_view(['DELETE',])
 # @permission_classes((IsAuthenticated,))
 def reserve_delete_view(request, hole_id):
-
-    # try:
-    #     hole = Hole.objects.get(pk=pk)
-    # except Hole.DoesNotExist:
-    #     return Response(status=status.HTTP_404_NOT_FOUND)
     updated_hole = Hole.objects.get(pk=hole_id)
 
     user = request.user

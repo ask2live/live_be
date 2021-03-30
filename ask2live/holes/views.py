@@ -71,10 +71,27 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
 
 @api_view(['GET',])
 @permission_classes([IsAuthenticatedOrReadOnly,])
-def hole_detail_view(request): #hole 상세정보 보는 api
+def holes_view(request): #hole 상세정보 보는 api
     holes = Hole.objects.exclude(status="DONE") # DONE만 빼고 넘겨주기
     serializer = HoleListSerializer(holes, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET',])
+@permission_classes([IsAuthenticatedOrReadOnly,])
+def hole_read_view(request,pk): #hole 상세정보 보는 api
+    data= {}
+    try :
+        hole = Hole.objects.get(id=pk)
+    except Hole.DoesNotExist:
+        data["response"] = "FAIL"
+        data["detail"] = "조회 할 hole이 없습니다."
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = HoleListSerializer(hole)
+    data['response'] = "SUCCESS"
+    data['detail'] = serializer.data
+    return Response(data)
+
 
 
 @swagger_auto_schema(methods=['PATCH'], request_body=HoleSerializer, operation_description="PATCH /hole/update/{hole_id}")
@@ -249,7 +266,7 @@ def live_hole_update_view(request,pk,channel_num): # 우리는 url로 channel_nu
         serializer= serializer_class(data= {'livehole' : livehole[0].id, 'user': user.id}) # 참가자 목록에 넣기.
         if user.email != livehole[0].hole.host.email: # host가 아니라 audience인 경우
         # if is_host == 'False':
-            uid = request.POST.get("uid")
+            uid = request.data.get("uid")
             uid_user = user_models.User.objects.get(email=user)
             uid_user.uid = uid
             uid_user.save()
@@ -273,8 +290,11 @@ def live_hole_update_view(request,pk,channel_num): # 우리는 url로 channel_nu
 def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num을 넘겨줌.
     data = {}
     if request.method == 'PATCH':
+        # print("request : ", request)
         user = request.user
+        print("request user : ", request.user)
         participant = Participants.objects.get(livehole=channel_num, user=user,leaved__isnull=True)
+        print("participant : ", participant)
         serializer = ParticipantSerializer(participant, data={'leaved':datetime.now()}, partial=True)
         if serializer.is_valid():
             livehole = LiveHole.objects.get(id=channel_num)
@@ -391,7 +411,7 @@ def hole_question_allread_view(request,pk):
     questions = Question.objects.filter(hole=hole)
     if request.method == 'GET':
         serializer = QuestionSerializer(questions, many=True)
-        data['reponse'] = 'SUCCESS'
+        data['response'] = 'SUCCESS'
         data['detail'] = serializer.data
         return Response(data, status=status.HTTP_200_OK)
 
@@ -405,8 +425,6 @@ def hole_wish_view(request,pk):
         data['response'] = 'FAIL'
         data['detail'] = '예약 요청을 할 방이 없습니다.'
         return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-
     if request.method == 'PATCH':
         reservation = Reservation.objects.get(hole=hole)
         user = request.user

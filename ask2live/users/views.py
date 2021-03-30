@@ -6,7 +6,9 @@ from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
 
 from . import models
-from .serializers import RegistrationSerializer,UserPropertiesSerializer,ChangePasswordSerializer,AllUserPropertiesSerializer
+from holes.models import Hole
+from .serializers import RegistrationSerializer,UserPropertiesSerializer,ChangePasswordSerializer
+from holes.serializers import HoleSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView # logout용 API VIEW
 from rest_framework.generics import UpdateAPIView
@@ -100,21 +102,40 @@ class Logout(APIView):
 @permission_classes([IsAuthenticatedOrReadOnly,]) #특정 유저 조회할 때는 허가 필요
 # @permission_classes((IsAuthenticated,)) #특정 유저 조회할 때는 허가 필요
 def user_properties_view(request):
+    path = request.resolver_match.url_name
+    print("path : ", path)
     data = {}
     try:
         # print("request_user",request)
         account = request.user
         # print("user 정보 보기:",request.user)
     except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        data['response'] = 'FAIL'
+        data['detail'] = '유저가 없습니다.'
+        return Response(data,status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        # account = models.User.objects.all()
-        # account = models.User.objects.filter(email=account)
-        serializer = UserPropertiesSerializer(account)
-        data['response'] = 'SUCCESS'
-        data['detail'] = serializer.data
-        # serializer = UserPropertiesSerializer(account,many=True)
-        return Response(data)
+        if path == "read":
+            serializer = UserPropertiesSerializer(account)
+            data['response'] = 'SUCCESS'
+            data['detail'] = serializer.data
+            return Response(data)
+        elif path == "read_hole":
+            # 본인의 hole 모두 들고오기
+            hole = Hole.objects.filter(host=account)
+            my_hole_serializer = HoleSerializer(hole, many=True)
+            
+            # 본인이 guest로 희망하는 hole 들고오기
+            wish_user_obj = models.User.objects.get(email=account)
+            reservations = wish_user_obj.hole_reservations.filter(guests=account).values_list('hole',flat=True)
+            holes = Hole.objects.filter(id__in=reservations) 
+            wish_hole_serializer = HoleSerializer(holes,many=True)
+            # json에 담아서 보내기
+            data['response'] = 'SUCCESS'
+            data['detail'] = {}
+            data['detail']['my_hole'] = my_hole_serializer.data
+            data['detail']['wish_hole'] = wish_hole_serializer.data
+            return Response(data)
+            
 
 @swagger_auto_schema(methods=['PATCH'], request_body=UserPropertiesSerializer, operation_description="PATCH /user/update")
 @api_view(['PATCH',])
@@ -123,7 +144,9 @@ def user_update_view(request):
     try:
         account = request.user
     except Account.DoesNotExist:
-        return response(status=status.HTTP_404_NOT_FOUND)
+        data['response'] = 'FAIL'
+        data['detail'] = '유저가 없습니다.'
+        return Response(data,status=status.HTTP_404_NOT_FOUND)
     if request.method== 'PATCH':
         data= {}
         user = models.User.objects.get(email=account)
@@ -145,11 +168,49 @@ def all_user_properties_view(request):
     if request.method == 'GET':
         account = models.User.objects.all()
         # account = models.User.objects.filter(email=account)
-        serializer = AllUserPropertiesSerializer(account, many=True)
+        serializer = UserPropertiesSerializer(account, many=True)
         data['response'] = 'SUCCESS'
         data['detail'] = serializer.data
         # serializer = UserPropertiesSerializer(account,many=True)
         return Response(data)
+
+
+
+@swagger_auto_schema(methods=['POST'], operation_description="POST /user/follow/<user_id>")
+@api_view(['POST',])
+@permission_classes((IsAuthenticated,)) #특정 유저 수정할 때는 허가 필요
+def user_follow_view(request,user_id):
+    data= {}
+    try:
+        user = request.user
+    except user.DoesNotExist:
+        data['response'] = 'FAIL'
+        data['detail'] = '유저가 없습니다.'
+        return Response(data,status=status.HTTP_404_NOT_FOUND)
+    if request.method== 'POST':
+        me = models.User.objects.get(email=user)
+        following_user = models.User.objects.get(id=user_id)
+        models.UserFollowing.objects.create(user_id=me, following_user_id=following_user)
+        data['response'] = 'SUCCESS'
+        return Response(data=data, status=status.HTTP_201_CREATED)
+
+@swagger_auto_schema(methods=['DELETE'], operation_description="DELETE /user/unfollow/<user_id>")
+@api_view(['DELETE',])
+@permission_classes((IsAuthenticated,)) #특정 유저 수정할 때는 허가 필요
+def user_unfollow_view(request,user_id):
+    data= {}
+    try:
+        user = request.user
+    except user.DoesNotExist:
+        data['response'] = 'FAIL'
+        data['detail'] = '유저가 없습니다.'
+        return Response(data,status=status.HTTP_404_NOT_FOUND)
+    if request.method== 'DELETE':
+        following_user = models.User.objects.get(id=user_id)
+        unfollow_user = models.UserFollowing.objects.get(user_id=user.id, following_user_id=following_user.id)
+        unfollow_user.delete()
+        data['response'] = 'SUCCESS'
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', ])

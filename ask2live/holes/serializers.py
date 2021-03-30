@@ -64,7 +64,6 @@ class HoleListSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "subtitle",
             "description",
             "reserve_date",
             "finish_date",

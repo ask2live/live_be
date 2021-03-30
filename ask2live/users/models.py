@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from holes import models as hole_models
+from core import models as core_model
 # token authentication
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -75,7 +76,7 @@ class User(AbstractUser):
     social_account = models.CharField(max_length=50, choices=SOCIAL_ACCOUNT, null=True, blank=True)
     bio = models.TextField(default="", blank=True)
     rating = models.IntegerField(default=0) # 호스트들의 평점
-    uid = models.IntegerField(blank=True, default=0)
+    uid = models.BigIntegerField(blank=True, default=0)
 
     objects = CustomUserManager()
 
@@ -89,3 +90,13 @@ def create_auth_token(sender,instance=None, created=False, **kwargs):
     if created:
         token = Token.objects.create(user=instance) # 유저가 생성되면 토큰이 만들어짐.
         print("token:", token.key)
+
+class UserFollowing(core_model.AbstractTimeStamp):
+    user_id = models.ForeignKey(User,related_name="following", on_delete=models.CASCADE) # 내가 following
+    following_user_id = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE) # 나를 following
+    created = models.DateTimeField(auto_now_add=True, db_index=True) # db_index는?
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user_id', 'following_user_id'], name="unique_followers")
+        ]
