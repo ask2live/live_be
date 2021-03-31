@@ -48,11 +48,11 @@ class UserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하�
             ]
     def get_following(self, obj):
         follow = FollowingMeSerializer(obj.following.all(), many=True).data
-        print("get_following : ", follow)
+        # print("get_following : ", follow)
         return follow
     def get_followers(self,obj):
         followers = MeFollowersSerializer(obj.followers.all(), many=True).data
-        print("get_followers : ", followers)
+        # print("get_followers : ", followers)
         return followers
 
 class FollowingMeSerializer(serializers.ModelSerializer): # 나를 following 하는
