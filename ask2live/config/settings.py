@@ -12,15 +12,19 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -163,37 +167,23 @@ MEDIA_URL = '/media/'
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
 
-# EMAIL SETTING
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'choi1036mk@gmail.com' # ex) bum752@gmail.com
-EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
-# SERVER_EMAIL = '' # ex) bum752@gmail.com
-DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
-
 ##CORS
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ALLOWED_ORIGINS = (
 #     "https://143.248.198.125:8000",
 #     "https://143.248.232.138:3000",
-#     "https://143.248.229.22:3000",
-#     "https://143.248.198.61:3000",
-#     "https://223.39.140.19:3000"
 # )
 
 CORS_ALLOW_CREDENTIALS = True
-
 ALLOWED_HOSTS=['3.36.88.31','143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156']
-# ALLOWED_HOSTS=['*']
+
 
 
 CORS_ALLOW_METHODS = (
     'GET',
+    'PATCH',
     'DELETE',
     'OPTIONS',
-    'PATCH',
     'POST',
     'PUT',
 )

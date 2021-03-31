@@ -3,8 +3,9 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from . import views
 from .views import (
+    holes_view,
     hole_create_view,
-    hole_detail_view,
+    hole_read_view,
     hole_update_view,
     hole_delete_view,
     reserved_hole_detail_view,
@@ -21,7 +22,8 @@ from .views import (
 app_name = 'holes'
 
 urlpatterns = [
-    path('', hole_detail_view, name="detail"),
+    path('', holes_view, name="detail"),
+    path('read/<int:pk>', hole_read_view, name="hole_detail"),
     # path('all', hole_detail_view, name="detail"), # 위에거 이거로 교체하기
     path('<int:pk>/live/join/<str:channel_num>', live_hole_update_view, name="live_join"),
     path('<int:pk>/live/leave/<str:channel_num>', live_hole_leave_view, name="live_leave"),
