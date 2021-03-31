@@ -14,6 +14,8 @@ from rest_framework.views import APIView # logout용 API VIEW
 from rest_framework.generics import UpdateAPIView
 from drf_yasg.utils import swagger_auto_schema
 
+HOST_CRITERIA = 1
+
 # Create your views here.
 @swagger_auto_schema(methods=['POST'], request_body=RegistrationSerializer, operation_description="POST /user/register")
 @api_view(['POST',])
@@ -191,6 +193,11 @@ def user_follow_view(request,user_id):
         me = models.User.objects.get(email=user)
         following_user = models.User.objects.get(id=user_id)
         models.UserFollowing.objects.create(user_id=me, following_user_id=following_user)
+        follow_count = following_user.followers.count()
+        # print("follow_count : ", follow_count , HOST_CRITERIA)
+        if follow_count == HOST_CRITERIA: #호스트 기준 충족시에만 권한부여
+            following_user.hole_open_auth = True
+            following_user.save()
         data['response'] = 'SUCCESS'
         return Response(data=data, status=status.HTTP_201_CREATED)
 
@@ -206,9 +213,14 @@ def user_unfollow_view(request,user_id):
         data['detail'] = '유저가 없습니다.'
         return Response(data,status=status.HTTP_404_NOT_FOUND)
     if request.method== 'DELETE':
+        me = models.User.objects.get(email=user)
         following_user = models.User.objects.get(id=user_id)
-        unfollow_user = models.UserFollowing.objects.get(user_id=user.id, following_user_id=following_user.id)
+        unfollow_user = models.UserFollowing.objects.get(user_id=me, following_user_id=following_user)
         unfollow_user.delete()
+        follow_count = following_user.followers.count()
+        if follow_count == HOST_CRITERIA-1: #호스트 기준 미충족시에만 권한 취소
+            following_user.hole_open_auth = False
+            following_user.save()
         data['response'] = 'SUCCESS'
         return Response(data=data, status=status.HTTP_200_OK)
 
