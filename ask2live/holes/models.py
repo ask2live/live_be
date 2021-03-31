@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import IntegerField, Model
+from django.db.models import IntegerField, BigIntegerField,Model
 from users import models as user_models
 from core import models as core_model
 
@@ -45,7 +45,6 @@ class Hole(core_model.AbstractTimeStamp):
     description     = models.TextField()            # 세션 설명
     reserve_date    = models.DateTimeField(blank=True, null=True) # 세션 시작하는 날짜
     finish_date     = models.DateTimeField(blank=True, null = True) # 세션이 종료되는 날짜    
-
     status          = models.CharField(max_length=12, choices=STATUS_CHOICES, default=STATUS_NOTSTART)
     rating          = models.IntegerField(blank=True, default=0)
     # ====================== 나중에 models.ForeignKey로 변경 ======================
@@ -68,9 +67,8 @@ class LiveHole(core_model.AbstractTimeStamp):
     hole = models.OneToOneField(Hole,related_name="liveholes", on_delete=models.CASCADE, blank=True)
     # 언제 pariticpant가 join했는지 알려면 테이블을 따로 빼서 ForeignKey로 둬야 할지도..
     # participants = models.ManyToManyField("users.User", related_name="liveholes_participants",blank=True, default='') #null이 들어가도 되는건가?
-    host_uid = models.IntegerField(blank=True,default=0) # User에 uid를 넣어놓을거면 사실 여기서 직접 필드 설정할 필요는 없을듯.
-    audience_uids = ListTextField( base_field=IntegerField(), size=30,default='')
-    # channel_number = CharField(max_length=100, unique=True) # id를 channel number로 쓸 수 없는 것 같아서 새로 생성.
+    host_uid = models.BigIntegerField(blank=True,default=0) # User에 uid를 넣어놓을거면 사실 여기서 직접 필드 설정할 필요는 없을듯. 숫자가 커서 Bigint 썼는데 DecimalField 써보라는 의견도 있음.
+    audience_uids = ListTextField( base_field=BigIntegerField(), size=30,default='',blank=True)
     # Maximum of 30 ids in list
 
     # def __str__(self):

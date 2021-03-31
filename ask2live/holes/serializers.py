@@ -6,7 +6,17 @@ from dateutil.parser import parse
 
 class HoleSerializer(serializers.ModelSerializer):
     host = serializers.CharField(read_only=True, source = 'host.id')
-    # username = serializers.SerializerMethodField('get_username_from_author')
+    # reservations_status = serializers.CharField(read_only=True, source='hole.hole_reservations.status')
+    reservation_status = serializers.SlugRelatedField(
+        source='hole_reservations',
+        slug_field='status',
+        read_only=True,
+    )
+    # SlugRelated Field랑 SerializerMethodField 중에 후자는 RelatedObjectDoesNotExist가 나는데 원인 파악 필요
+    # reservation_status = serializers.SerializerMethodField(read_only=True, required=False)
+    # def get_reservation_status(self, obj):
+    #     print("status : ", obj.hole_reservations)
+    #     return obj.hole_reservations.status
     class Meta:
         model = Hole
         # fields = '__all__'
@@ -17,6 +27,7 @@ class HoleSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "status",
+            "reservation_status",
             "reserve_date",
             "finish_date",
             "host",
@@ -26,6 +37,7 @@ class HoleSerializer(serializers.ModelSerializer):
             "status": {"required": False, 'read_only': True},
             "rating": {"required": False, 'read_only': True},
             "finish_date": {"required": False},
+            "reservation_status" : {'read_only':True, "required": False},
             }
     def create(self, validated_data): # serializer save 할때 호출됨.
         instance = self.Meta.model(**validated_data)
@@ -50,7 +62,7 @@ class HoleListSerializer(serializers.ModelSerializer):
     #     read_only=True,
     #     )
     # status = serializers.CharField(read_only=True)
-    hole_reservations = HoleReservationSerializer(read_only=True,many=True)
+    hole_reservations = HoleReservationSerializer(read_only=True)
     livehole_id = serializers.CharField(source="liveholes.id",read_only=True)
     count_participant = serializers.IntegerField(read_only=True)
     # reservation_target_demand = serializers.SerializerMethodField()
@@ -62,7 +74,6 @@ class HoleListSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "subtitle",
             "description",
             "reserve_date",
             "finish_date",
