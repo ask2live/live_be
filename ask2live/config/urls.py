@@ -50,7 +50,6 @@ urlpatterns = [
 
 if production.DEBUG:
     urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
-print("url_patterns : ", urlpatterns)
 
 if development.DEBUG:
     urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)

@@ -10,11 +10,14 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/etc/mysql/my.cnf',
-            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
-            # 'read_default_file': '/usr/local/etc/my.cnf',
-        },
+        'NAME': 'qna_prod',
+        'USER': 'qna_proj',
+        'PASSWORD': 'ask2live',
+        'HOST': '3.36.64.63',
+        'PORT': '3306',
+        # 'OPTIONS': {
+        #     'read_default_file': '/etc/mysql/my.cnf',
+        # },
     }
 }
 

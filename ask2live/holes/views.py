@@ -275,6 +275,7 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
         user = request.user
         participant = Participants.objects.get(livehole=channel_num, user=user,leaved__isnull=True)
         serializer = ParticipantSerializer(participant, data={'leaved':datetime.now()}, partial=True)
+        # audience가 나갈 경우 audience uid를 지워야 함.
         if serializer.is_valid():
             livehole = LiveHole.objects.get(id=channel_num)
             if user.email == livehole.hole.host.email: # 호스트인 경우
@@ -283,7 +284,6 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
                 livehole.hole.save()
                 # 방이 폭파되는거라 게스트도 다 leave가 찍혀야 함..!
             serializer.save()
-            
             data['response'] = 'SUCCESS'
             return Response(data, status=status.HTTP_200_OK)
         else:

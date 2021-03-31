@@ -89,3 +89,5 @@ def create_auth_token(sender,instance=None, created=False, **kwargs):
     if created:
         token = Token.objects.create(user=instance) # 유저가 생성되면 토큰이 만들어짐.
         print("token:", token.key)
+
+    
