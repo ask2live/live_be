@@ -14,6 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include,re_path
 from django.conf.urls import url
 from django.conf import settings
@@ -35,7 +38,6 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
-
 urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
@@ -43,7 +45,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # REST FRAMEWORK URls
     path('api/hole/', include('holes.urls')),
-    # path('chat/', include('chats.urls')),
     path('api/user/', include('users.urls', 'user_api')),
     path('api/reservation/', include('hole_reservations.urls')),
 ]
