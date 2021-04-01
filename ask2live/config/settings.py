@@ -24,12 +24,13 @@ if os.path.isfile(dotenv_file):
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
 
+SECRET_KEY = os.environ.get("SECRET_KEY")
+# print("SECRET_KEY : ", SECRET_KEY)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['3.36.108.181','172.31.8.193']
+ALLOWED_HOSTS = ['143.248.226.51', '143.248.198.61','3.36.88.31','223.39.140.19']
 # ALLOWED_HOSTS = []
 
 # Application definition
@@ -116,9 +117,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-
-            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
             # 'read_default_file': '/etc/mysql/my.cnf',
+            # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
             'read_default_file': '/usr/local/etc/my.cnf',
         },
     }
@@ -165,7 +165,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-
 # User 모델 커스텀
 AUTH_USER_MODEL = "users.User"
 
@@ -174,13 +173,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ALLOWED_ORIGINS = (
 #     "https://143.248.198.125:8000",
 #     "https://143.248.232.138:3000",
-#     "https://143.248.232.80:3000",
-#     "https://localhost:3000",
-#     "https://localhost:8000",
 # )
+
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS=['143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156', '192.168.0.42','143.248.229.142','143.248.232.80']
-# ALLOWED_HOSTS=['*']
+ALLOWED_HOSTS=['3.36.88.31','143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156']
+
 
 
 CORS_ALLOW_METHODS = (
