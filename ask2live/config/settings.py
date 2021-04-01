@@ -26,6 +26,7 @@ if os.path.isfile(dotenv_file):
 # SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
+# print("SECRET_KEY : ", SECRET_KEY)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -116,9 +117,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': '/etc/mysql/my.cnf',
+            # 'read_default_file': '/etc/mysql/my.cnf',
             # 'read_default_file': '/ProgramData/MySQL/MySQL Server 8.0/my.ini',
-            # 'read_default_file': '/usr/local/etc/my.cnf',
+            'read_default_file': '/usr/local/etc/my.cnf',
         },
     }
 }

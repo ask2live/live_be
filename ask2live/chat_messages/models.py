@@ -12,7 +12,6 @@ class Message(core_model.AbstractTimeStamp):
     # LiveHole로 하면 LiveHole.id가 될거같은데?..
     livehole = models.ForeignKey(hole_models.LiveHole, on_delete=models.CASCADE,related_name="messages")
     sent_timestamp = models.DateTimeField(auto_now_add = True, editable=False, blank=True)
-    # converstaion = models.ForeignKey(hole_models.LiveHole, related_name="messages", on_delete=models.CASCADE, default="")
-
+    
     def __str__(self):
         return str(self.sender) + ' - ' + str(self.livehole)

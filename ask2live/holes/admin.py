@@ -10,7 +10,6 @@ class HoleAdmin(admin.ModelAdmin):
         ,"reserve_date"
         ,"finish_date"
         ,"status"
-        ,"rating"
         ,"host"
     )
 
@@ -19,7 +18,6 @@ class LiveHoleAdmin(admin.ModelAdmin):
     list_display = (
     "id"
     ,"hole"
-    # ,"participants"
     ,"__str__"
     ,"host_uid"
     ,"audience_uids"
