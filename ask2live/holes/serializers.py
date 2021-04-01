@@ -31,11 +31,10 @@ class HoleSerializer(serializers.ModelSerializer):
             "reserve_date",
             "finish_date",
             "host",
-            "rating",
         ]
         extra_kwargs = {
             "status": {"required": False, 'read_only': True},
-            "rating": {"required": False, 'read_only': True},
+            # "rating": {"required": False, 'read_only': True},
             "finish_date": {"required": False},
             "reservation_status" : {'read_only':True, "required": False},
             }
@@ -53,7 +52,7 @@ class HoleSerializer(serializers.ModelSerializer):
 
 
 class HoleListSerializer(serializers.ModelSerializer):
-    host_nickname = serializers.CharField(source='host.nickname', read_only=True)
+    host_username = serializers.CharField(source='host.username', read_only=True)
     host_work_field = serializers.CharField(source='host.work_field',read_only=True)
     host_work_company = serializers.CharField(source='host.work_company',read_only=True)
     host_profile_image = serializers.ImageField(source='host.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
@@ -80,7 +79,7 @@ class HoleListSerializer(serializers.ModelSerializer):
             "reserve_date",
             "finish_date",
             "status",
-            "host_nickname",
+            "host_username",
             "host_work_field",
             "host_work_company",
             "host_profile_image",
@@ -93,12 +92,12 @@ class HoleListSerializer(serializers.ModelSerializer):
 class LiveHoleSerializer(serializers.ModelSerializer):
     # hole = serializers.PrimaryKeyRelatedField(many=False, queryset=Hole.objects.all())
     host = serializers.CharField(read_only=True, source = 'hole.host.id')
-    host_nickname = serializers.CharField(read_only=True, source = 'hole.host.nickname')
+    host_username = serializers.CharField(read_only=True, source = 'hole.host.username')
     host_profile_image_url = serializers.CharField(read_only=True, source = 'hole.host.profile_image')
     class Meta:
         model = LiveHole
         # 모델에 있는 컬럼 중에 선택
-        fields = ['id', 'host_uid', 'audience_uids', 'hole','host','host_nickname', 'host_profile_image_url'] 
+        fields = ['id', 'host_uid', 'audience_uids', 'hole','host','host_username', 'host_profile_image_url'] 
         
     def create(self, validated_data):
         instance = self.Meta.model(**validated_data)
@@ -120,7 +119,7 @@ class LiveHoleSerializer(serializers.ModelSerializer):
 
 class ParticipantSerializer(serializers.ModelSerializer):
     profile_image_url = serializers.ImageField(source='user.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
-    nickname = serializers.CharField(source='user.nickname',read_only=True)
+    username = serializers.CharField(source='user.username',read_only=True)
     work_field = serializers.CharField(source='user.work_field', read_only=True)
     work_company = serializers.CharField(source='user.work_company', read_only=True)
     class Meta:
@@ -130,7 +129,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
           'livehole', 
           'user',
           'profile_image_url',
-          'nickname',
+          'username',
           'work_field',
           'work_company',
           'joined',
@@ -140,7 +139,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     user = serializers.CharField(read_only=True, source='user.id')
-    user_nickname = serializers.CharField(read_only=True, source='user.nickname')
+    user_username = serializers.CharField(read_only=True, source='user.username')
     user_uid = serializers.IntegerField(read_only=True, source='user.uid')
     hole = serializers.CharField(read_only=True, source='hole.id')
     class Meta:
@@ -149,7 +148,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "user_uid",
-            "user_nickname",
+            "user_username",
             "hole",
             "question",
             "is_voice",

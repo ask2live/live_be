@@ -33,9 +33,9 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
      if request.method == 'POST':
         print("request : ", request)
         account = request.user
-        user = user_models.User.objects.get(email=account)
+        user = user_models.User.objects.get(username=account)
         data = {}
-        if user.hole_open_auth == True:
+        if user:
             reserve_date = request.data.get('reserve_date')
             # print("reserve_date : ", reserve_date)
             finish_date = parse(reserve_date) + timedelta(days=1)
@@ -70,10 +70,10 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
                 data['response'] = 'FAIL'
                 data['detail'] = '유효한 정보가 아닙니다.'
                 return Response(data, status=status.HTTP_400_BAD_REQUEST)
-        else: # 호스트권한이 없는 경우
-            data['response'] = 'FAIL'
-            data['detail'] = '호스트 권한이 없습니다.'
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        # else: # 호스트권한이 없는 경우
+        #     data['response'] = 'FAIL'
+        #     data['detail'] = '호스트 권한이 없습니다.'
+        #     return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET',])
@@ -223,7 +223,7 @@ def live_hole_create_view(request,pk):
     hole = Hole.objects.get(pk=pk)
     if request.method=="POST":
         data = {}
-        if user.email == hole.host.email: # 호스트일경우
+        if user.username == hole.host.username: # 호스트일경우
             host_uid = request.data.get('host_uid')
             channel_num = request.data.get('channel_num')
             if channel_num == None: # 에러 처리
@@ -261,11 +261,12 @@ def live_hole_update_view(request,pk,channel_num): # 우리는 url로 channel_nu
     if request.method == 'PUT':
         data = {}
         user = request.user
-        livehole = LiveHole.objects.filter(id=channel_num)   
+        livehole = LiveHole.objects.filter(id=channel_num)  
+        print("livehole : ", livehole) 
         serializer= serializer_class(data= {'livehole' : livehole[0].id, 'user': user.id}) # 참가자 목록에 넣기.
-        if user.email != livehole[0].hole.host.email: # host가 아니라 audience인 경우
+        if user.username != livehole[0].hole.host.username: # host가 아니라 audience인 경우
             uid = request.data.get("uid")
-            uid_user = user_models.User.objects.get(email=user)
+            uid_user = user_models.User.objects.get(username=user)
             uid_user.uid = uid
             uid_user.save()
             livehole.update(
@@ -276,7 +277,7 @@ def live_hole_update_view(request,pk,channel_num): # 우리는 url로 channel_nu
             data['response'] = 'SUCCESS'
             data['detail'] = {}
             data['detail']['audience_uid'] = uid
-            data['detail']['audience_nickname'] = user.nickname
+            data['detail']['audience_username'] = user.username
             return Response(data,status=status.HTTP_200_OK)
         else:
             data['response'] = 'FAIL'
@@ -295,7 +296,7 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
         serializer = ParticipantSerializer(participant, data={'leaved':datetime.now()}, partial=True)
         if serializer.is_valid():
             livehole = LiveHole.objects.get(id=channel_num)
-            if user.email == livehole.hole.host.email: # 호스트인 경우
+            if user.username == livehole.hole.host.username: # 호스트인 경우
                 livehole.hole.status = 'DONE'
                 livehole.hole.finish_date = timezone.now()
                 livehole.hole.save()
@@ -430,7 +431,7 @@ def hole_wish_view(request,pk):
         reservation.current_demand +=1
         print("reservation : ", reservation)
         print("reservation : ", reservation.guests)
-        wish_user_obj = user_models.User.objects.get(email=user)
+        wish_user_obj = user_models.User.objects.get(username=user)
         if wish_user_obj.hole_reservations.filter(id=reservation.id, guests=user).exists(): # many to many field의 reverse accessor 활용
             data['response'] = 'FAIL'
             data['detail'] = '중복 신청은 할 수 없습니다.'
@@ -463,7 +464,7 @@ def hole_wish_cancel_view(request,pk):
 
         reservation.current_demand -=1
         print("reservation : ", reservation.guests) # 왜 users.User.None 로 찍히지?
-        wish_user_obj = user_models.User.objects.get(email=user)
+        wish_user_obj = user_models.User.objects.get(username=user)
         target_user = wish_user_obj.hole_reservations.filter(guests=user)
         if target_user.exists(): # many to many field의 reverse accessor 활용
             reservation.guests.remove(user)
