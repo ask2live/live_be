@@ -298,6 +298,7 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
         # print("request user : ", request.user)
         participant = Participants.objects.get(livehole=channel_num, user=user,leaved__isnull=True)
         serializer = ParticipantSerializer(participant, data={'leaved':datetime.now()}, partial=True)
+        # audience가 나갈 경우 audience uid를 지워야 함.
         if serializer.is_valid():
             livehole = LiveHole.objects.get(id=channel_num)
             if user.username == livehole.hole.host.username: # 호스트인 경우
@@ -306,7 +307,6 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
                 livehole.hole.save()
                 # TODO : 방이 폭파되는거라 게스트도 다 leave가 찍혀야 함..!
             serializer.save()
-            
             data['response'] = 'SUCCESS'
             return Response(data, status=status.HTTP_200_OK)
         else:
@@ -512,4 +512,3 @@ def host_hole_confirm_view(request,pk):
         # 상태가 바뀌었으니 예약요청한 게스트에게 메일 보내기가 구현되어야 함.
         data["response"] = "SUCCESS"
         return Response(data=data)
-        

@@ -33,6 +33,7 @@ class HoleReservationSerializer(serializers.ModelSerializer):
         instance.hole = hole 
         instance.save()
         return instance
+        
     def update(self, instance, validated_data):
         print("DEBUG | HoleReservation Serializser Update")
         # print("validated_data : ", validated_data)

@@ -17,9 +17,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'client/static'),]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-# SECRET_KEY = os.environ.get("SECRET_KEY")
-DATABASES = {
 
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'qna_prod',
