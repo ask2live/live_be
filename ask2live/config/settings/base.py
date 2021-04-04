@@ -66,7 +66,6 @@ PROJECT_APPS = [
     "hole_reservations.apps.HoleReservationsConfig",
     "core.apps.CoreConfig",
     "chat_messages.apps.ChatMessagesConfig"
-    # "chats.apps.ChatsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
@@ -87,7 +86,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['client'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,7 +146,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR, "collect_static")
 STATICFILES_DIRS = [
-     BASE_DIR / 'static',
+     BASE_DIR / 'client/static'
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -157,14 +156,6 @@ MEDIA_URL = '/media/'
 AUTH_USER_MODEL = "users.User"
 
 # EMAIL SETTING
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'choi1036mk@gmail.com' # ex) bum752@gmail.com
-EMAIL_HOST_PASSWORD = 'audvna354z' # ex) P@ssw0rd
-# SERVER_EMAIL = '' # ex) bum752@gmail.com
-DEFAULT_FROM_MAIL = EMAIL_HOST_USER # ex) bum752
 
 ##CORS
 CORS_ALLOW_ALL_ORIGINS = True
@@ -199,6 +190,8 @@ CORS_ALLOW_HEADERS = (
     'origin',
     'user-agent',
     'x-csrftoken',
+    # 'X-CSRFToken', # 로그인 시 CSRF Abort 에러 방지
+    # 'csrftoken',
     'x-requested-with',
     'Access-Control-Allow-Origin',
 )
