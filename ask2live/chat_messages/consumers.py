@@ -21,13 +21,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        print("WS Chat connect :: ")
+        print("DEBUG | WS Chat connect :: ")
         await self.accept()
         await self.fetch_messages(room)
     
     # leave room group
     async def disconnect(self, close_code):
-        print("WS Chat disconnect")
+        print("DEBUG | WS Chat disconnect")
         await self.channel_layer.group_discard(
             self.room_group_name, 
             self.channel_name)
@@ -36,7 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # receive message from the socket
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("WS Chat receive")
+        print("DEBUG | WS Chat receive")
         await self.commands[data['command']](self, data['data'])
 
 
@@ -52,13 +52,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 })
     # saves message to db and fetch messages(room으로부터 메세지 받아오고 group에 보내기) again
     async def new_message(self, data):
-        print("new_message data1:", data['sender'])
-        print("new_message data2:", data)
+        # print("new_message data1:", data['sender'])
+        # print("new_message data2:", data)
         text = data['text']
         username = data['sender']
         # print("new_message")
         await self.create_room_message(text, username, self.room_name)
-        print("username new_message : ", username)
+        # print("username new_message : ", username)
         await self.fetch_messages(self.room_name)
 
     # receive에서 쓸 커맨드 목록
@@ -77,8 +77,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async #-> 정확한 의미 알기
     def create_room_message(self, text, username, room):
         author = User.objects.get(username=username) # 이메일 아니면 username으로
-        print("author : ", author)
-        print("author : ", author.username)
+        # print("author : ", author)
+        # print("author : ", author.username)
         room = LiveHole.objects.get(id=room)
         # print("create_room_message")
         return Message.objects.create(sender=author, text=text, livehole=room)

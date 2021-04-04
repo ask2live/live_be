@@ -54,10 +54,14 @@ class Hole(core_model.AbstractTimeStamp):
 
     @property
     def count_participant(self):
-        users = self.liveholes.participants.all()
+        users = self.liveholes.participants.filter(leaved__isnull=True)
         # print("users : ",users)
         # print(users.count())
         return users.count()
+    @property
+    def count_questions(self):
+        questions = self.questions.all()
+        return questions.count()
 
 
 class LiveHole(core_model.AbstractTimeStamp):

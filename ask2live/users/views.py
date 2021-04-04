@@ -28,7 +28,7 @@ def registration_or_login_view(request): # 로그인과 회원가입을 동시�
         password = request.data.get('password')
         if validate_username(username) != None: # 이미 username이 있을 경우 로그인
             account = authenticate(username=username, password=password)
-            print("account : ", account)
+            print("회원가입 account : ", account)
             if account:
                 try:
                     token = Token.objects.get(user=account)
@@ -71,7 +71,7 @@ class Logout(APIView):
     permission_classes = [IsAuthenticated,]
     def post(self, request, format=None):
         # simply delete the token to force a login
-        print("request : ", request)
+        # print("request : ", request)
         request.user.auth_token.delete()
         data = {}
         data['response'] = 'SUCCESS'
@@ -81,7 +81,7 @@ class Logout(APIView):
 @permission_classes([IsAuthenticatedOrReadOnly,]) #특정 유저 조회할 때는 허가 필요
 def user_properties_view(request):
     path = request.resolver_match.url_name
-    print("path : ", path)
+    # print("path : ", path)
     data = {}
     try:
         # print("request_user",request)
@@ -128,7 +128,7 @@ def user_update_view(request):
         data= {}
         user = models.User.objects.get(username=account)
         serializer = UserPropertiesSerializer(user, data=request.data,partial=True)
-        print("serializer : ",serializer)
+        # print("serializer : ",serializer)
         if serializer.is_valid():
             serializer.save()
             data['response'] = 'SUCCESS'

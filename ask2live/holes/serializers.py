@@ -56,20 +56,10 @@ class HoleListSerializer(serializers.ModelSerializer):
     host_work_field = serializers.CharField(source='host.work_field',read_only=True)
     host_work_company = serializers.CharField(source='host.work_company',read_only=True)
     host_profile_image = serializers.ImageField(source='host.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
-    # reservation_target_demand = serializers.SlugRelatedField(
-    #      source='hole_reservations',
-    #     slug_field='target_demand',
-    #     many=True,
-    #     read_only=True,
-    #     )
-    # status = serializers.CharField(read_only=True)
     hole_reservations = HoleReservationSerializer(read_only=True)
     livehole_id = serializers.CharField(source="liveholes.id",read_only=True)
     count_participant = serializers.IntegerField(read_only=True)
-    # reservation_target_demand = serializers.SerializerMethodField()
-    # def get_reservation_target_demand(self, obj):
-    #     return obj.hole_reservations.target_demand
-    
+    count_questions = serializers.IntegerField(read_only=True)
     class Meta:
         model = Hole
         fields = [
@@ -86,6 +76,7 @@ class HoleListSerializer(serializers.ModelSerializer):
             "hole_reservations",
             "livehole_id",
             "count_participant",
+            "count_questions"
         ]
     
 

@@ -19,9 +19,10 @@ class HoleReservationSerializer(serializers.ModelSerializer):
             # "hole" : {'read_only': True} 이걸 넣으면 validated_data에 hole이 안들어옴.
             }
     def create(self, validated_data):
-        print("validated_data : ", validated_data)
+        print("DEBUG | HoleReservation Serializser Create")
+        # print("validated_data : ", validated_data)
         instance = self.Meta.model(**validated_data) #instance는 __str__ 설정한게 리턴됨. __str__ 안 쓰면 Reservation object (None) 리턴.
-        print("instance : ", instance) 
+        # print("instance : ", instance) 
         reserve_date = validated_data['reserve_date']
         instance.reserve_start_date = reserve_date
         finish_date = validated_data['finish_date']
@@ -33,7 +34,8 @@ class HoleReservationSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     def update(self, instance, validated_data):
-        print("validated_data : ", validated_data)
+        print("DEBUG | HoleReservation Serializser Update")
+        # print("validated_data : ", validated_data)
         if validated_data['reserve_date']:
             instance.reserve_date = validated_data['reserve_date']
             instance.finish_date = validated_data['reserve_date'] + timedelta(days=1)
