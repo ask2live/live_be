@@ -31,7 +31,7 @@ from drf_yasg.utils import swagger_auto_schema
 @permission_classes([IsAuthenticated,])
 def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 만들어져야 함.   
     print("DEBUG | Hole Create")
-     if request.method == 'POST':
+    if request.method == 'POST':
         # print("request : ", request)
         account = request.user
         user = user_models.User.objects.get(username=account)
