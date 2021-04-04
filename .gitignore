@@ -159,6 +159,12 @@ venv/
 *.key
 *.conf
 
+# 외부 파일
+prod_log/
+load_test/
+
+config/settings/*
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 
