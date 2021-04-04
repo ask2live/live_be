@@ -10,18 +10,15 @@ if os.path.isfile(dotenv_file):
 
 DEBUG = True
 
-ALLOWED_HOSTS=['www.ask2live.me', 'ask2live.me']
+ALLOWED_HOSTS=['www.ask2live.me', 'ask2live.me','127.0.0.1','localhost','3.36.230.239','172.31.8.193']
 
-STATIC_ROOT = BASE_DIR / 'static/'
-STATICFILES_DIRS = []
+# STATIC_ROOT = BASE_DIR / 'client/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'client/static'),]
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-# SECRET_KEY = os.environ.get("SECRET_KEY")
+
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'qna_prod',
