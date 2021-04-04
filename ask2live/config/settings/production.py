@@ -19,10 +19,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-<<<<<<< HEAD
-
-=======
->>>>>>> ec97c81c2274656fb1dd204e21e0391c9f2cf698
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'qna_prod',
