@@ -39,9 +39,7 @@ class HoleSerializer(serializers.ModelSerializer):
             "reservation_status" : {'read_only':True, "required": False},
             }
     def create(self, validated_data): # serializer save 할때 호출됨.
-        # print("hole validated_data: ", validated_data)
         instance = self.Meta.model(**validated_data)
-        # print("instance : ", instance)
         finish_date = validated_data['reserve_date'] + timedelta(days=1)
         user = self.context['request'].user
         # user = validated_data['user']

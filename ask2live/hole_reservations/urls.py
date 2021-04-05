@@ -21,5 +21,4 @@ urlpatterns = [
     path('hole/<int:pk>/wish', hole_wish_view, name="wish"),
     path('hole/<int:pk>/wishcancel', hole_wish_cancel_view, name="wish_cancel"),
     path('hole/<int:pk>/hostconfirm', host_hole_confirm_view, name="host_confirm"),
-    # path('logout', Logout.as_view(), name="logout"),
 ]

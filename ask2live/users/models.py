@@ -89,6 +89,7 @@ def create_auth_token(sender,instance=None, created=False, **kwargs):
         token = Token.objects.create(user=instance) # 유저가 생성되면 토큰이 만들어짐.
         # print("토큰 만들 때 token:", token.key)
 
+
 class UserFollowing(core_model.AbstractTimeStamp):
     user_id = models.ForeignKey(User,related_name="following", on_delete=models.CASCADE) # 내가 following
     following_user_id = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE) # 나를 following
