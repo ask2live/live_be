@@ -28,6 +28,7 @@ class HoleReservationSerializer(serializers.ModelSerializer):
         finish_date = validated_data['finish_date']
         instance.finish_date = finish_date
         target_demand = validated_data['target_demand']
+
         instance.target_demand = target_demand 
         hole = validated_data['hole']
         instance.hole = hole 
