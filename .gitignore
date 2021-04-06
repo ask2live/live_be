@@ -161,7 +161,6 @@ venv/
 
 # 외부 파일
 prod_log/
-load_test/
 
 config/settings/*
 

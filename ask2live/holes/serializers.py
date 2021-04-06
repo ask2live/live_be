@@ -66,6 +66,7 @@ class HoleListSerializer(serializers.ModelSerializer):
             "description",
             "reserve_date",
             "finish_date",
+            "created",
             "status",
             "host_username",
             "host_work_field",
@@ -75,6 +76,7 @@ class HoleListSerializer(serializers.ModelSerializer):
             "livehole_id",
             "count_participant",
             "count_questions"
+            
         ]
     
 
