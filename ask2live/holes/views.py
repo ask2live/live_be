@@ -66,6 +66,7 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
                         reservation.status = 'CONFIRMED'
                         reservation.save()
                 data['response'] = 'SUCCESS'
+                data['detail'] = hole_serializer.data
                 return Response(data, status=status.HTTP_201_CREATED)
             else:
                 data['response'] = 'FAIL'
@@ -131,16 +132,17 @@ def hole_update_view(request, hole_id): # 특정 hole update하기
         if reserve_date:
             reservation_data['reserve_date'] = reserve_date
         target_demand = request.data.get('target_demand')
-        if target_demand:
+        print("target_demand : ", target_demand, flush=True)
+        if target_demand >= 0:
             reservation_data['target_demand'] = target_demand
-        # print("reservation_data : ", reservation_data)
+        print("reservation_data : ", reservation_data, flush=True)
         if hole_serializer.is_valid(raise_exception=True):
 
             hole_serializer.save()
             if reserve_date:
                 hole.finish_date= hole_serializer.validated_data['reserve_date'] + timedelta(days=1)
             if reservation_data:
-                reservation_serializer = HoleReservationSerializer(reserved_hole, data=reservation_data, partial=True)
+                reservation_serializer = HoleReservationSerializer(reserved_hole, context = {'request':request}, data=reservation_data, partial=True)
                 if reservation_serializer.is_valid():
                     reservation_serializer.save()
             data["response"] = "SUCCESS"

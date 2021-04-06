@@ -91,7 +91,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # print("fetch_messages")
         # print("room_group_name : ", self.room_group_name)
         await self.channel_layer.group_send(
-            self.room_group_name,{ 
+            self.room_group_name,
+                { 
                 'type': 'send_message', 
                 'message': messages 
                 })
@@ -122,8 +123,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async #-> 정확한 의미 알기
     def create_room_message(self, text, username, room):
         author = User.objects.get(username=username) # 이메일 아니면 username으로
-        # print("author : ", author)
-        # print("author : ", author.username)
         room = LiveHole.objects.get(id=room)
         # print("create_room_message")
         return Message.objects.create(sender=author, text=text, livehole=room)
@@ -139,6 +138,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_chat_room(self, room):
-        # print("get_chat_room")
         # print("get_chat_room | room : ", room)
         return LiveHole.objects.get(id=room) # live hole id말고 channelnum으로 받아오게 하자.

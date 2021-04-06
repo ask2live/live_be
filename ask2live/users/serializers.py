@@ -44,6 +44,8 @@ class UserPropertiesSerializer(serializers.ModelSerializer): # 필드 필요하�
             'following',
             'followers'
             ]
+        read_only_fields = ['following','followers']
+        
     def get_following(self, obj):
         follow = FollowingMeSerializer(obj.following.all(), many=True).data
         # print("get_following : ", follow)
