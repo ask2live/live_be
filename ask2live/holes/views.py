@@ -80,7 +80,7 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
 @api_view(['GET',])
 @permission_classes([IsAuthenticatedOrReadOnly,])
 def holes_view(request): #hole 상세정보 보는 api
-    holes = Hole.objects.exclude(status="DONE") # DONE만 빼고 넘겨주기
+    holes = Hole.objects.exclude(status="DONE").order_by('reserve_date') # DONE만 빼고 넘겨주기
     serializer = HoleListSerializer(holes, many=True)
     return Response(serializer.data)
 
