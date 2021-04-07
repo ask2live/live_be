@@ -26,3 +26,10 @@ class Reservation(core_model.AbstractTimeStamp):
 
     def guests_list(self): # 어드민에 게스트 리스트 보여주기, for loop 안 돌리고도 보여주기가 가능.
         return list(self.guests.values_list('username',flat=True))
+    
+    @property
+    def count_guests(self):
+        users = self.guests.all()
+        # print("users : ",users)
+        # print(users.count())
+        return users.count()

@@ -6,12 +6,23 @@ from dateutil.parser import parse
 
 class HoleSerializer(serializers.ModelSerializer):
     host = serializers.CharField(read_only=True, source = 'host.id')
-    # reservations_status = serializers.CharField(read_only=True, source='hole.hole_reservations.status')
+    host_profile_image = serializers.ImageField(source='host.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
     reservation_status = serializers.SlugRelatedField(
         source='hole_reservations',
         slug_field='status',
         read_only=True,
     )
+    target_demand = serializers.SlugRelatedField(
+        source='hole_reservations',
+        slug_field='target_demand',
+        read_only=True,
+    )
+    current_demand = serializers.SlugRelatedField(
+        source='hole_reservations',
+        slug_field='current_demand',
+        read_only=True,
+    )
+    count_guests = serializers.IntegerField(read_only=True)
     # SlugRelated Field랑 SerializerMethodField 중에 후자는 RelatedObjectDoesNotExist가 나는데 원인 파악 필요
     # reservation_status = serializers.SerializerMethodField(read_only=True, required=False)
     # def get_reservation_status(self, obj):
@@ -28,15 +39,21 @@ class HoleSerializer(serializers.ModelSerializer):
             "description",
             "status",
             "reservation_status",
+            "count_guests",
+            "target_demand",
+            "current_demand",
             "reserve_date",
             "finish_date",
             "host",
+            "host_profile_image",
         ]
         extra_kwargs = {
             "status": {"required": False, 'read_only': True},
             # "rating": {"required": False, 'read_only': True},
             "finish_date": {"required": False},
             "reservation_status" : {'read_only':True, "required": False},
+            "target_demand" : {'read_only':True, "required": False},
+            "current_demand" : {'read_only':True, "required": False},
             }
     def create(self, validated_data): # serializer save 할때 호출됨.
         instance = self.Meta.model(**validated_data)
