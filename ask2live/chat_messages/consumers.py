@@ -9,48 +9,48 @@ from holes.models import Hole, LiveHole
 from chat_messages.serializers import MessageSerializer
 from users.serializers import UserPropertiesSerializer
 
-# class ChatConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         self.room_name = self.scope['url_route']['kwargs']['room_name']
-#         self.room_group_name = 'chat_%s' % self.room_name
+class ChatConsumer1(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name
 
-#         # Join room group
-#         await self.channel_layer.group_add(
-#             self.room_group_name,
-#             self.channel_name
-#         )
+        print("self channel_name : ", self.channel_name,flush=True)
+        # Join room group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
 
-#         await self.accept()
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
 
-#     async def disconnect(self, close_code):
-#         # Leave room group
-#         await self.channel_layer.group_discard(
-#             self.room_group_name,
-#             self.channel_name
-#         )
+    # Receive message from WebSocket
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
 
-#     # Receive message from WebSocket
-#     async def receive(self, text_data):
-#         text_data_json = json.loads(text_data)
-#         message = text_data_json['message']
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
 
-#         # Send message to room group
-#         await self.channel_layer.group_send(
-#             self.room_group_name,
-#             {
-#                 'type': 'chat_message',
-#                 'message': message
-#             }
-#         )
+    # Receive message from room group
+    async def chat_message(self, event):
+        message = event['message']
 
-#     # Receive message from room group
-#     async def chat_message(self, event):
-#         message = event['message']
-
-#         # Send message to WebSocket
-#         await self.send(text_data=json.dumps({
-#             'message': message
-#         }))
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
 
 # -----
 
@@ -66,6 +66,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+
+        # TODO : cache key에 넣을 room name(group name)을 넘겨준다.
         print("DEBUG | WS Chat connect :: ")
         await self.accept()
         await self.fetch_messages(room)
@@ -87,7 +89,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # fetch room messages and send it to the group(룸의 메세지 받아오고 그룹에 send message로 보내기)
     async def fetch_messages(self, room):
+        # TODO: cache를 하나 만든다. 키는 방 이름으로 정해서 unique하게 만듬. 
+        # cache 키가 있으면, 그걸 바로 group send한다. 아니면 get_serialilzed_message호출
         messages = await self.get_serialized_messages(room)
+        
         # print("fetch_messages")
         # print("room_group_name : ", self.room_group_name)
         await self.channel_layer.group_send(
@@ -125,6 +130,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         author = User.objects.get(username=username) # 이메일 아니면 username으로
         room = LiveHole.objects.get(id=room)
         # print("create_room_message")
+        # TODO: cache가 처음에는 없을 테니 roomname 가지고 set을 만들어야 함.
         return Message.objects.create(sender=author, text=text, livehole=room)
 
     @database_sync_to_async
@@ -132,6 +138,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # print("get_serialized_messages room : ", room)
         messages = Message.objects.filter(livehole=room)
         serializer = MessageSerializer(messages, many=True)
+        # TODO: cache에도 갱신해야 함.
+
         # print("get_serialized_messages serializer : ", serializer.data)
         # print("get_serialized_messages")
         return json.dumps(serializer.data)

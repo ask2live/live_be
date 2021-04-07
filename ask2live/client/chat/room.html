@@ -14,12 +14,12 @@
 
         const chatSocket = new WebSocket(
             'wss://'
-            + '127.0.0.1:8000'
+            // + '127.0.0.1:8000'
             // + '172.31.8.193:8000'
-            // + 'www.ask2live.me:8000'
-            + '/ws/hole/'
-            // + roomName
-            + '671'
+            + 'www.ask2live.me'
+            + '/ws/chat/'
+            + roomName
+            // + '7026'
             + '/'
         );
         console.log("socket: ", chatSocket)
