@@ -4,18 +4,6 @@ from locust import HttpUser, task, between,SequentialTaskSet,events
 from websocket import create_connection
 import gevent,json
 
-
-def fire_event_request(start_at, name, body):
-    res_time = int(((datetime.now(timezone.utc) - start_at)).total_seconds())
-    # print("res time : ", res_time)
-    # print("body : ", body)
-    events.request_success.fire(
-        request_type='Websocket Receive Message',
-        name=name,
-        response_time=res_time,
-        response_length=len(body),
-    )
-
 class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플로우 고민
     hole_list = []
     token = ""
@@ -177,46 +165,7 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
                         print("라이브 홀 조인 성공")
                     else:
                         print("라이브 홀 조인 실패")
-    @task
-    def on_chat_start(self):
-        WS_SERVER = 'wss://www.ask2live.me/ws/hole/' + self.channel_num +'/'
-        print("채팅 열기")
-        self.ws = create_connection(WS_SERVER)
-        # print("웹소켓 커넥션")
-
-        def _receive():
-            print("채팅 받기")
-            # print("웹소켓 리시브")
-            while True:
-                res = self.ws.recv()
-                data = json.loads(res) #json을 deserialize 해줌.
-
-                print("데이터 길이 : ", len(data))
-                if len(data) >=1:
-                    start_at = datetime.strptime(data[-1]['sent_timestamp'],'%Y-%m-%dT%H:%M:%S.%f%z')
-                    name = data[-1]['sender']
-                    fire_event_request(start_at, name, data)
-                else:
-                    continue
-        gevent.spawn(_receive)
-
-    #웹소켓 연결해서 채팅
-    @task(2)
-    def send(self):
-        print("채팅 데이터 보내기")
-        min_wait = 2000
-        max_wait = 5000
-        body = json.dumps({
-            'command': 'new_message',
-            'data': {
-                'text': 'hello world111',
-                'sender': 'foo2439' 
-            }            
-            }) # json을 serialize 해줌. 서버에 보냄
-        self.ws.send(body)
-        # self._sleep(randint(min_wait, max_wait))
-        # time.sleep(10)
-        self.wait()
+  
 
     @task
     def update_question(self):
@@ -258,7 +207,7 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
 
 
     # @events.test_stop.add_listener
-    def on_stop(self): # 테스트 시 마스터 노드에서 한번만 수행
+    def on_stop(self): 
         print("A new test is ending")
         for i in range(len(self.token_list)):
             with self.client.post(
@@ -270,6 +219,7 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
                 else:
                     print("로그아웃 실패")
         self.ws.close()
+        self.user.environment.runner.quit()
 
     # def on_quit(self):
     #     self.ws.close()
