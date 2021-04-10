@@ -28,7 +28,7 @@ def registration_or_login_view(request): # 로그인과 회원가입을 동시�
         password = request.data.get('password')
         if validate_username(username) != None: # 이미 username이 있을 경우 로그인
             account = authenticate(username=username, password=password)
-            print("회원가입 account : ", account)
+            print("회원가입 로그인 account : ", account, flush=True)
             if account:
                 try:
                     token = Token.objects.get(user=account)
@@ -37,10 +37,11 @@ def registration_or_login_view(request): # 로그인과 회원가입을 동시�
                 data['response'] = 'LOGIN SUCCESS'
                 data['detail'] = {}
                 data['detail']['token'] = token.key
+                
                 return Response(data,status=status.HTTP_200_OK)
 
         serializer= RegistrationSerializer(data=request.data)
-
+        print("회원가입 시리얼라이저 : ",serializer, flush=True)
         if serializer.is_valid(): # 아니면 회원가입
             account = serializer.save()
             token = Token.objects.get(user=account).key
@@ -60,6 +61,7 @@ def validate_username(username):
     account = None
     try: 
         account = models.User.objects.get(username=username)
+        print("validate username account : ", account)
     except models.User.DoesNotExist:
         return None
     if account != None:

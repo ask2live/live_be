@@ -12,4 +12,5 @@ class ChatMessagesAdmin(admin.ModelAdmin):
         ,"sender"
         ,"livehole"
         ,"sent_timestamp"
+        # ,"start_at"
     )

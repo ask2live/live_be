@@ -95,7 +95,6 @@ class HoleListSerializer(serializers.ModelSerializer):
             "livehole_id",
             "count_participant",
             "count_questions"
-            
         ]
     
 

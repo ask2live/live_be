@@ -14,7 +14,7 @@ class ChatConsumer1(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
 
-        print("self channel_name : ", self.channel_name,flush=True)
+        # print("self channel_name : ", self.channel_name,flush=True)
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -92,7 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # TODO: cache를 하나 만든다. 키는 방 이름으로 정해서 unique하게 만듬. 
         # cache 키가 있으면, 그걸 바로 group send한다. 아니면 get_serialilzed_message호출
         messages = await self.get_serialized_messages(room)
-        
+        print("messages : ", messages)
         # print("fetch_messages")
         # print("room_group_name : ", self.room_group_name)
         await self.channel_layer.group_send(
@@ -109,7 +109,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         username = data['sender']
         # print("new_message")
         await self.create_room_message(text, username, self.room_name)
-        # print("username new_message : ", username)
+        
+        # TODO : fetch messages가 아니라 이때부턴 그냥 group send만 하는게 나을듯. (fetch는 처음에 접속할때만 불러오기)
         await self.fetch_messages(self.room_name)
 
     # receive에서 쓸 커맨드 목록
@@ -136,7 +137,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_serialized_messages(self, room):
         # print("get_serialized_messages room : ", room)
-        messages = Message.objects.filter(livehole=room)
+        messages = reversed(Message.objects.filter(livehole=room).order_by('-id')[:20])
         serializer = MessageSerializer(messages, many=True)
         # TODO: cache에도 갱신해야 함.
 
