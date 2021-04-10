@@ -10,7 +10,7 @@ if os.path.isfile(dotenv_file):
 
 DEBUG = True
 
-ALLOWED_HOSTS=['www.ask2live.me', 'ask2live.me','127.0.0.1','localhost','3.36.230.239','172.31.8.193']
+ALLOWED_HOSTS=['www.ask2live.me', 'ask2live.me','127.0.0.1','localhost','3.36.230.239','172.31.8.193','143.248.226.8']
 
 # STATIC_ROOT = BASE_DIR / 'client/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'client/static'),]

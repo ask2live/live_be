@@ -6,4 +6,4 @@ def test_url(url, data=""):
     async_to_sync(conn.send)(data)
 
 
-test_url("ws://143.248.226.51:8002/rooms/8")
+test_url("ws://143.248.226.78:8001/rooms/8")

@@ -200,6 +200,8 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
     'Access-Control-Allow-Origin',
+    # 'X-CSRFToken', # 로그인 시 CSRF Abort 에러 방지
+    # 'csrftoken',
 )
 
 #Authentication backends

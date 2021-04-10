@@ -37,11 +37,12 @@ class HoleReservationSerializer(serializers.ModelSerializer):
         
     def update(self, instance, validated_data):
         print("DEBUG | HoleReservation Serializser Update")
-        # print("validated_data : ", validated_data)
+        print("업데이트 reservation validated_data : ", validated_data)
         if validated_data['reserve_date']:
             instance.reserve_date = validated_data['reserve_date']
             instance.finish_date = validated_data['reserve_date'] + timedelta(days=1)
-        instance.target_demand = validated_data['target_demand']
+        if validated_data['target_demand']:
+            instance.target_demand = validated_data['target_demand']
         user = self.context['request'].user
         instance.guests.add(user)
         # instance.guests.add(validated_data['guests'])   
