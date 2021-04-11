@@ -14,22 +14,72 @@ from django.core.cache import cache
 from datetime import datetime,timezone
 from ast import literal_eval
 
+class ChatConsumer1(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name
+
+        print("self channel_name : ", self.channel_name,flush=True)
+        # Join room group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    # Receive message from WebSocket
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
+
+    # Receive message from room group
+    async def chat_message(self, event):
+        message = event['message']
+
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
+
+# -----
+
 class ChatConsumer(AsyncWebsocketConsumer):
     # con = get_redis_connection("default")
     # print("redis: con ", con)
     async def connect(self):
         con = get_redis_connection("default")
+
         self.room_name = self.scope['url_route']['kwargs']['room_id']
+        # self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'room_%s' % self.room_name
         
         self.author_group_name = "author:%s" % self.room_name
         self.livehole_group_name = "group:livehole"
         room = await self.get_chat_room(self.room_name, self.livehole_group_name,con) # 인자 넘길 때 redis key도 같이 넘기기
+
          # join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
+
+        # TODO : cache key에 넣을 room name(group name)을 넘겨준다.
         print("DEBUG | WS Chat connect :: ")
         await self.accept()
         await self.fetch_messages(room,con)
@@ -52,10 +102,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     # fetch room messages and send it to the group(룸의 메세지 받아오고 그룹에 send message로 보내기)
+
     async def fetch_messages(self, room,con): # 여기서 캐시에 있는 데이터를 들고온다?
         messages = await self.get_serialized_messages(room,con)
         print("fetch_messages")
-        # print("room_group_name : ", self.room_group_name)
+        # TODO: cache를 하나 만든다. 키는 방 이름으로 정해서 unique하게 만듬. 
+        # cache 키가 있으면, 그걸 바로 group send한다. 아니면 get_serialilzed_message호출
+
         await self.channel_layer.group_send(
             self.room_group_name,{ 
                 'type': 'init_message', 
@@ -272,3 +325,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
             livehole_h = con.hset(group,livehole,livehole)
             # print("hash cache set한 livehole : ", livehole_h)
         return livehole
+

@@ -6,8 +6,8 @@ autobahn==21.3.1
 Automat==20.2.0
 certifi==2020.12.5
 cffi==1.14.5
-channels==2.4.0
-channels-redis==3.0.0
+channels==3.0.1
+channels-redis==3.2.0
 chardet==4.0.0
 click==7.1.2
 ConfigArgParse==1.4
@@ -15,7 +15,7 @@ constantly==15.1.0
 coreapi==2.3.3
 coreschema==0.0.4
 cryptography==3.4.6
-daphne==2.5.0
+daphne==3.0.0
 Django==3.1.7
 django-cors-headers==3.7.0
 django-debug-toolbar==3.2
@@ -30,6 +30,7 @@ gevent==21.1.2
 geventhttpclient==1.4.4
 greenlet==1.0.0
 hiredis==1.1.0
+hpack==3.0.0
 hyperlink==21.0.0
 idna==2.10
 incremental==21.3.0
@@ -39,7 +40,7 @@ itypes==1.2.0
 Jinja2==2.11.3
 locust==1.4.4
 MarkupSafe==1.1.1
-msgpack==1.0.2
+msgpack==1.0.0
 mysqlclient==2.0.3
 packaging==20.9
 Pillow==8.1.2
@@ -49,6 +50,9 @@ pyasn1-modules==0.2.8
 pycparser==2.20
 pyOpenSSL==20.0.1
 pyparsing==2.4.7
+pytest==6.2.2
+pytest-asyncio==0.14.0
+pytest-django==4.1.0
 python-dateutil==2.8.1
 python-dotenv==0.16.0
 pytz==2021.1
@@ -60,6 +64,7 @@ ruamel.yaml.clib==0.2.2
 service-identity==18.1.0
 six==1.15.0
 sqlparse==0.4.1
+toml==0.10.2
 Twisted==21.2.0
 txaio==21.2.1
 uritemplate==3.0.1

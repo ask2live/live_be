@@ -38,12 +38,29 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
+react_views_regex = r'\/|\b'.join([
+
+    # List all your react routes here
+    'main',
+    'login',
+    'createSession',
+    'mypage',
+    'session'
+
+]) + r'\/'
+
 urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # path( '', TemplateView.as_view(template_name='index.html'),name='index'),
     path('admin/', admin.site.urls),
+    re_path(r'^$', TemplateView.as_view(template_name='index.html'),name='index'),
+    re_path(react_views_regex, TemplateView.as_view(template_name='index.html')),
+    # path('<path:route>',TemplateView.as_view(template_name='index.html'),name='index'),
+    # re_path(r'^(%s)?$' % '|'.join(routes), TemplateView.as_view(template_name='index.html')),
     #REST FRAMEWORK URls
+    path('chat/', include('chat_messages.urls')), # 테스트용 -- 삭제 필요
     path('api/hole/', include('holes.urls')),
     path('api/user/', include('users.urls', 'user_api')),
     path('api/reservation/', include('hole_reservations.urls')),

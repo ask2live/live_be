@@ -128,7 +128,7 @@ def user_update_view(request):
         data= {}
         user = models.User.objects.get(username=account)
         serializer = UserPropertiesSerializer(user, data=request.data,partial=True)
-        # print("serializer : ",serializer)
+        print("serializer : ",serializer,flush=True)
         if serializer.is_valid():
             serializer.save()
             data['response'] = 'SUCCESS'

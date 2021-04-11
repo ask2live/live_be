@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.19c73719.chunk.css",
+    "main.js": "/static/js/main.a81d1881.chunk.js",
+    "main.js.map": "/static/js/main.a81d1881.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.a0df1567.js",
+    "runtime-main.js.map": "/static/js/runtime-main.a0df1567.js.map",
+    "static/js/2.109ec47f.chunk.js": "/static/js/2.109ec47f.chunk.js",
+    "static/js/2.109ec47f.chunk.js.map": "/static/js/2.109ec47f.chunk.js.map",
+    "static/js/3.fb2bcf4d.chunk.js": "/static/js/3.fb2bcf4d.chunk.js",
+    "static/js/3.fb2bcf4d.chunk.js.map": "/static/js/3.fb2bcf4d.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.19c73719.chunk.css.map": "/static/css/main.19c73719.chunk.css.map",
+    "static/js/2.109ec47f.chunk.js.LICENSE.txt": "/static/js/2.109ec47f.chunk.js.LICENSE.txt",
+    "static/js/main.a81d1881.chunk.js.LICENSE.txt": "/static/js/main.a81d1881.chunk.js.LICENSE.txt",
+    "static/media/index.css": "/static/media/NotoSansKR-Regular.e95adf0e.woff2",
+    "static/media/App.css": "/static/media/GmarketSansTTFMedium.d4bac6b1.ttf"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.a0df1567.js",
+    "static/js/2.109ec47f.chunk.js",
+    "static/css/main.19c73719.chunk.css",
+    "static/js/main.a81d1881.chunk.js"
+  ]
+}
