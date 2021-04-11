@@ -20,6 +20,7 @@ class ChatConsumer1(AsyncWebsocketConsumer):
 
         # print("self channel_name : ", self.channel_name,flush=True)
         # Join room group
+        print("Tutorial | Connect")
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -28,6 +29,8 @@ class ChatConsumer1(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave room group
+        print("Tutorial | DisConnect")
+
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -35,7 +38,11 @@ class ChatConsumer1(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
+        print("Tutorial | Receive")
+        print("리시브에서 text_data : ", text_data)
         text_data_json = json.loads(text_data)
+        print("리시브에서 text_data_json : ", text_data_json)
+ 
         message = text_data_json['message']
 
         # Send message to room group
@@ -49,6 +56,7 @@ class ChatConsumer1(AsyncWebsocketConsumer):
 
     # Receive message from room group
     async def chat_message(self, event):
+        print("chat message에서 event : ", event)
         message = event['message']
 
         # Send message to WebSocket
@@ -182,12 +190,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # message = Message.objects.create(sender=author_id, text=text, livehole=livehole)
         
         # 메세지 넣는건 캐시에 메세지 데이터 추가하는 것과 별개로 디비에는 담아야 할듯. if else로 나눠서 처리되면 안됨.
-        # 메세지 capacity 확인 후 eviction 및 캐시에 넣기
-        group_messages_count = con.zcard(group_key)
-        if group_messages_count == 20:
-            ress = con.zpopmin(group_key)
-            # print("ress : ", ress)
-
         # 새로운 메세지를 sorted set에 넣기
         message['id'] = message_serializer.data['id']
         message['sent_timestamp'] = str(now_time)
@@ -195,8 +197,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         dict = {}
         dict[str(message)] = time.time()
         con.zadd(group_key, dict)
-        cache.expire(group_key, timeout=600)
         # print("con zadd 잘됨!! 메세지 캐시에 담음.")
+        cache.expire(group_key, timeout=500)
+
+        # 메세지 capacity 확인 후 eviction 및 캐시에 넣기
+        group_messages_count = con.zcard(group_key)
+        print("group_messages_count : ", group_messages_count)
+        if group_messages_count >= 20:
+            ress = con.zpopmin(group_key)
+            # print("ress : ", ress)
+
 
         return message
 
@@ -234,7 +244,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return json.dumps(message_array)
         else:
             # db에서 메세지를 가지고오기
-            messages = Message.objects.filter(livehole=room)
+            messages = reversed(Message.objects.filter(livehole=room).order_by('-id')[:20])
             serializer = MessageSerializer(messages, many=True)
             # print("get_serialized_messages 디비쪽으로 들어옴 ")
             return json.dumps(serializer.data)
