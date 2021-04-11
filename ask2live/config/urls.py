@@ -46,7 +46,8 @@ react_views_regex = r'\/|\b'.join([
     'login',
     'createSession',
     'mypage',
-    'session'
+    'session',
+    'preQuestions'
 
 ]) + r'\/'
 
