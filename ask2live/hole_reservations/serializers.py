@@ -20,7 +20,7 @@ class HoleReservationSerializer(serializers.ModelSerializer):
             }
     def create(self, validated_data):
         print("DEBUG | HoleReservation Serializser Create")
-        # print("validated_data : ", validated_data)
+        print("validated_data : ", validated_data)
         instance = self.Meta.model(**validated_data) #instance는 __str__ 설정한게 리턴됨. __str__ 안 쓰면 Reservation object (None) 리턴.
         # print("instance : ", instance) 
         reserve_date = validated_data['reserve_date']

@@ -8,7 +8,7 @@ from chat_messages.consumers import ChatConsumer
 
 websocket_urlpatterns = [
     # path("hole/<str:room_id>")
-    url(r"^hole/(?P<room_id>[\w.@+-]+)", ChatConsumer),
+    re_path(r'ws/hole/(?P<room_id>\w+)/$', ChatConsumer),
 ]
 # print("websocekt url : ", websocket_urlpatterns)
 # print("websocekt ChatConsumer : ", ChatConsumer)

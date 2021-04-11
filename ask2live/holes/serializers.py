@@ -70,6 +70,7 @@ class HoleListSerializer(serializers.ModelSerializer):
     host_username = serializers.CharField(source='host.username', read_only=True)
     host_work_field = serializers.CharField(source='host.work_field',read_only=True)
     host_work_company = serializers.CharField(source='host.work_company',read_only=True)
+    host_bio = serializers.CharField(source='host.bio',read_only=True)
     host_profile_image = serializers.ImageField(source='host.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
     hole_reservations = HoleReservationSerializer(read_only=True)
     livehole_id = serializers.CharField(source="liveholes.id",read_only=True)
@@ -88,6 +89,7 @@ class HoleListSerializer(serializers.ModelSerializer):
             "host_username",
             "host_work_field",
             "host_work_company",
+            "host_bio",
             "host_profile_image",
             "hole_reservations",
             "livehole_id",
@@ -149,6 +151,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     user = serializers.CharField(read_only=True, source='user.id')
     user_username = serializers.CharField(read_only=True, source='user.username')
     user_uid = serializers.IntegerField(read_only=True, source='user.uid')
+    user_profile_image_url = serializers.ImageField(source='user.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
     hole = serializers.CharField(read_only=True, source='hole.id')
     class Meta:
         model= Question
@@ -157,6 +160,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "user",
             "user_uid",
             "user_username",
+            "user_profile_image_url",
             "hole",
             "question",
             "is_voice",

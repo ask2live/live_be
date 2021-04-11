@@ -4,7 +4,8 @@ from channels.db import database_sync_to_async
 
 from users.models import User
 from chat_messages.models import Message
-from holes.models import Hole, LiveHole
+from holes.models import Hole, LiveHole, Question
+from holes.serializers import QuestionSerializer
 
 from chat_messages.serializers import MessageSerializer
 from users.serializers import UserPropertiesSerializer
@@ -35,7 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     # leave room group
     async def disconnect(self, close_code):
-        print("DEBUG | WS Chat disconnect")
+        print("DEBUG | WS Chat disconnect", close_code)
         await self.channel_layer.group_discard(
             self.room_group_name, 
             self.channel_name)
@@ -46,6 +47,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         con = get_redis_connection("default")
         data = json.loads(text_data)
         print("DEBUG | WS Chat receive")
+        print("리시브 할 때 data :", data)
         await self.commands[data['command']](self, data['data'], con)
 
 
@@ -56,42 +58,126 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # print("room_group_name : ", self.room_group_name)
         await self.channel_layer.group_send(
             self.room_group_name,{ 
-                'type': 'send_message', 
+                'type': 'init_message', 
                 'message': messages 
+                })
+
+
+    # 질문 불러오는 함수
+    async def fetch_questions(self, data,con): # 여기서 캐시에 있는 데이터를 들고온다?
+        print("complete fetch_questions : ", data)
+        question_data = {
+            'hole_id' : data['pk']
+        }
+        questions = await self.get_questions(question_data) # 이걸 만들어야 하나?
+        # HttpResponseRedirect로 question all read view 부르면 그거 리턴 받으면 json 나오나? 그거 파싱해서 send 해야할듯.
+        print("fetch_questions : ", questions)
+        # 질문 리스트 보내는거랑 메세지보내는거랑 type을 나눠야 함.
+        await self.channel_layer.group_send(
+            self.room_group_name,
+                { 
+                'type': 'send_questions', 
+                'message': questions 
+                })
+
+    # 라이브홀 정보 불러오는 함수(participant 조인 시 체크)
+    async def fetch_livehole(self, data,con):
+        room = await self.get_chat_room(self.room_name, self.livehole_group_name,con)
+        print("complete fetch_questions : ", data)
+        question_data = {
+            'hole_id' : data['pk']
+        }
+        questions = await self.get_questions(question_data) # 이걸 만들어야 하나?
+        # HttpResponseRedirect로 question all read view 부르면 그거 리턴 받으면 json 나오나? 그거 파싱해서 send 해야할듯.
+        print("fetch_questions : ", questions)
+        # 질문 리스트 보내는거랑 메세지보내는거랑 type을 나눠야 함.
+        await self.channel_layer.group_send(
+            self.room_group_name,
+                { 
+                'type': 'send_questions', 
+                'message': questions 
                 })
     # saves message to db and fetch messages(room으로부터 메세지 받아오고 group에 보내기) again
     async def new_message(self, data,con):
-        # print("new_message data1:", data['sender'])
-        # print("new_message data2:", data)
         self.author_group_name = "author:%s" % self.room_name
+        print("new message 할 때 : ", data)
         text = data['text']
         username = data['sender']
         print("text, username : ", text, username)
-        await self.create_room_message(text, username, self.room_name, self.author_group_name, con)
-        # print("username new_message : ", username)
-        await self.fetch_messages(self.room_name,con)
+        message = await self.create_room_message(text, username, self.room_name, self.author_group_name, con)
+        print("new message에서 message : ", message)
+        
+        # 4/11 : 메세지 받은걸 바로 broadcast하려고 한다.
+        await self.channel_layer.group_send(
+            self.room_group_name,
+                { 
+                'type': 'send_message', 
+                'message': message 
+                })
+        # await self.fetch_messages(self.room_name,con)
 
     # receive에서 쓸 커맨드 목록
     commands = {
         'fetch_messages': fetch_messages,
-        'new_message': new_message
+        'new_message': new_message,
+        'fetch_questions' : fetch_questions,
+        'fetch_livehole' : fetch_livehole
     }
+
+    # 처음 들어올 때 최근 N개 메세지 보여주기
+    async def init_message(self, event):
+        print("init_message 에서 event : ", event)
+        # event의 type에 따라 분기 처리해서 message 안에 type key를 추가하는식으로 해도 될듯.
+        message = event['message']
+        print("init_message 에서 message : ", message)
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            "type": "ON_MESSAGES_INIT",
+            "data": message
+        }))
+
+
     # finally send message to the socket
     async def send_message(self, event):
+        print("send_message 에서 event : ", event)
+        # event의 type에 따라 분기 처리해서 message 안에 type key를 추가하는식으로 해도 될듯.
         message = event['message']
-        # print("send_message")
-        # print("send message :  ", message)
+        print("send_message 에서 message : ", message)
         # Send message to WebSocket
-        await self.send(text_data=message)
+        await self.send(text_data=json.dumps({
+            "type": "ON_MESSAGES_READ",
+            "data": message
+        }))
+
+    # 질문을 소켓으로 보내기
+    async def send_questions(self, event):
+        print("send_questions 에서 event : ", event)
+        # event의 type에 따라 분기 처리해서 message 안에 type key를 추가하는식으로 해도 될듯.
+        question = event['message']
+        print("send_questions 에서 question : ", question)
+        # Send message to WebSocket
+        # send 할 때 보낼 수 있는 key값이 무엇이 있는지 코드를 까보기
+        await self.send(text_data=json.dumps({
+            "type": "QUESTION",
+            "data": question
+        }))
     
+    @database_sync_to_async
+    def get_questions(self,question_data):
+        print("get_questions의 question_data : ", question_data)
+        hole = Hole.objects.get(id = question_data['hole_id'])
+        questions = Question.objects.filter(hole=hole)
+        serializer = QuestionSerializer(questions, many=True)
+        return serializer.data
+
 
     @database_sync_to_async
     def create_room_message(self, text, username, room,author_group, con):
+        print("-----------------create_room_message")
         res = con.hexists(author_group, username) # 캐시에 author들이 있는지 확인 : 있으면 캐시히트
         print("create_room_message res : ", res)
         if res == 1:
             author_id= con.hget(author_group, username).decode("utf-8") # 바로 불러옴. 대신 bytes로 리턴이라 디코딩필요
-            # print("cache author : ",author_id)
         else:
             author_id = User.objects.get(username=username).id # 메세지 record를 만들기 위해 id로 가지고오기
             # print("db author : ",author_id)
@@ -145,48 +231,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
         cache.expire(group_key, timeout=600)
         # print("con zadd 잘됨!! 메세지 캐시에 담음.")
 
-        return message
+        # 4/11 : 메세지 받은걸 바로 broadcast 하기 위해 json dump해서 보냄.
+        return [message]
 
     @database_sync_to_async
     def get_serialized_messages(self, room, con):
         # 캐시에 있는 메세지를 가지고오기
         group_key = "message:%s" % room
-        # print("get_serialized_messages에서 group_key : ", group_key)
-        # print("여기서 캐시는?", cache)
         res = con.exists(group_key)
-        # print("res : ", res)
         if res == 1:
             # messages = cache.get(group_key)
             messages = con.zrange(group_key, 0,-1) # 현재 group에 있는 메세지 전부 가져오기
-            # print("message : ", messages)
             message_array = []
             for m in messages: # bytes list로 리턴된 걸 디코드하기
                 m = m.decode('utf-8')
-                # print("디코드 한 m : ", m)
-                # print("m의 type : ", type(m))
-                # json_acceptable_string = m.replace("'", "\"")
-                # print("json_acceptable_string이란 : ", json_acceptable_string)
-                # m = json.loads(json_acceptable_string)
                 m = literal_eval(m) # string dict를 dict로 만들기
-
                 message_array.append(m)
-            #     m = literal_eval(str(m.decode('utf-8')))
-            #     # m['text'].decode('utf-8')
-            #     message_array.append(m)
-            # message_array = [ literal_eval(str(m.decode('utf-8'))) for m in messages]
-            # print("messages array : ", message_array)
-            # print("get_serialized_messages 캐시쪽으로 들어옴 ")
             
             # dict가 담긴 array를 json array 형태로 저장.
-            return json.dumps(message_array)
+            return message_array
         else:
             # db에서 메세지를 가지고오기
-            messages = Message.objects.filter(livehole=room)
+            messages = reversed(Message.objects.filter(livehole=room).order_by('-id')[:20])
             serializer = MessageSerializer(messages, many=True)
             # print("get_serialized_messages 디비쪽으로 들어옴 ")
-            return json.dumps(serializer.data)
-        # print("get_serialized_messages serializer : ", serializer.data)
-        # print("get_serialized_messages")
+            return serializer.data
+
     
     @database_sync_to_async
     def get_chat_room(self, room, group,con):
@@ -196,8 +266,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if res == 1:
             print("hexists 통과")
             livehole = con.hget(group,room).decode("utf-8") # channel num 불러오기
-            # print("hash cache get한 livehole : ", livehole)
-            # print("hash cache get한 livehole 타입 : ", type(livehole))
         else:
             livehole_qs = LiveHole.objects.get(id=room)
             livehole = livehole_qs.id

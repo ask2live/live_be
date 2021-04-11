@@ -38,7 +38,8 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
         data = {}
         if user:
             reserve_date = request.data.get('reserve_date')
-            # print("reserve_date : ", reserve_date)
+            print("reserve_date : ", reserve_date)
+            print("reserve_date type : ", type(reserve_date))
             finish_date = parse(reserve_date) + timedelta(days=1)
             target_demand = request.data.get('target_demand')
             hole_serializer = HoleSerializer(context = {'request':request},data=request.data)
