@@ -71,6 +71,7 @@ class HoleListSerializer(serializers.ModelSerializer):
     host_work_field = serializers.CharField(source='host.work_field',read_only=True)
     host_bio = serializers.CharField(source='host.bio',read_only=True)
     host_work_company = serializers.CharField(source='host.work_company',read_only=True)
+    host_bio = serializers.CharField(source='host.bio',read_only=True)
     host_profile_image = serializers.ImageField(source='host.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
     hole_reservations = HoleReservationSerializer(read_only=True)
     livehole_id = serializers.CharField(source="liveholes.id",read_only=True)
