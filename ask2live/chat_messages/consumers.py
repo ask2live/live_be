@@ -5,6 +5,9 @@ from channels.db import database_sync_to_async
 from users.models import User
 from chat_messages.models import Message
 from holes.models import Hole, LiveHole, Question
+from users.models import User
+from rest_framework.authtoken.models import Token
+
 from holes.serializers import QuestionSerializer
 
 from chat_messages.serializers import MessageSerializer
@@ -14,72 +17,22 @@ from django.core.cache import cache
 from datetime import datetime,timezone
 from ast import literal_eval
 
-class ChatConsumer1(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
-
-        print("self channel_name : ", self.channel_name,flush=True)
-        # Join room group
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-
-    # Receive message from WebSocket
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message
-            }
-        )
-
-    # Receive message from room group
-    async def chat_message(self, event):
-        message = event['message']
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-# -----
-
 class ChatConsumer(AsyncWebsocketConsumer):
     # con = get_redis_connection("default")
     # print("redis: con ", con)
     async def connect(self):
         con = get_redis_connection("default")
-
         self.room_name = self.scope['url_route']['kwargs']['room_id']
-        # self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'room_%s' % self.room_name
         
         self.author_group_name = "author:%s" % self.room_name
         self.livehole_group_name = "group:livehole"
         room = await self.get_chat_room(self.room_name, self.livehole_group_name,con) # 인자 넘길 때 redis key도 같이 넘기기
-
          # join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
-
-        # TODO : cache key에 넣을 room name(group name)을 넘겨준다.
         print("DEBUG | WS Chat connect :: ")
         await self.accept()
         await self.fetch_messages(room,con)
@@ -102,13 +55,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     # fetch room messages and send it to the group(룸의 메세지 받아오고 그룹에 send message로 보내기)
-
     async def fetch_messages(self, room,con): # 여기서 캐시에 있는 데이터를 들고온다?
         messages = await self.get_serialized_messages(room,con)
         print("fetch_messages")
-        # TODO: cache를 하나 만든다. 키는 방 이름으로 정해서 unique하게 만듬. 
-        # cache 키가 있으면, 그걸 바로 group send한다. 아니면 get_serialilzed_message호출
-
+        # print("room_group_name : ", self.room_group_name)
         await self.channel_layer.group_send(
             self.room_group_name,{ 
                 'type': 'init_message', 
@@ -118,11 +68,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # 질문 불러오는 함수
     async def fetch_questions(self, data,con): # 여기서 캐시에 있는 데이터를 들고온다?
-        print("complete fetch_questions : ", data)
-        question_data = {
-            'hole_id' : data['pk']
-        }
-        questions = await self.get_questions(question_data) # 이걸 만들어야 하나?
+        print(" fetch_questions : :")
+        questions = await self.get_questions(data) # 이걸 만들어야 하나?
         # HttpResponseRedirect로 question all read view 부르면 그거 리턴 받으면 json 나오나? 그거 파싱해서 send 해야할듯.
         print("fetch_questions : ", questions)
         # 질문 리스트 보내는거랑 메세지보내는거랑 type을 나눠야 함.
@@ -133,23 +80,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': questions 
                 })
 
-    # 라이브홀 정보 불러오는 함수(participant 조인 시 체크)
-    async def fetch_livehole(self, data,con):
-        room = await self.get_chat_room(self.room_name, self.livehole_group_name,con)
-        print("complete fetch_questions : ", data)
-        question_data = {
-            'hole_id' : data['pk']
-        }
-        questions = await self.get_questions(question_data) # 이걸 만들어야 하나?
-        # HttpResponseRedirect로 question all read view 부르면 그거 리턴 받으면 json 나오나? 그거 파싱해서 send 해야할듯.
-        print("fetch_questions : ", questions)
-        # 질문 리스트 보내는거랑 메세지보내는거랑 type을 나눠야 함.
-        await self.channel_layer.group_send(
-            self.room_group_name,
-                { 
-                'type': 'send_questions', 
-                'message': questions 
-                })
+    # # 라이브홀 정보 불러오는 함수(participant 조인 시 체크) : 현재 안 씀
+    # async def fetch_livehole(self, data,con):
+    #     room = await self.get_chat_room(self.room_name, self.livehole_group_name,con)
+    #     print("fetch_livehole : ")
+    #     channel_num = data['pk']
+    #     # livehole = await self.get_livehole(channel_num) # 당장 필요 없지만 추후에 만들어야 될 수도 있는 함수
+    #     await self.channel_layer.group_send(
+    #         self.room_group_name,
+    #             { 
+    #             'type': 'send_livehole', 
+    #             # 'message': questions 
+    #             })
+
+    # 질문 답변 처리하는 함수
+    async def complete_question(self, data,con):
+        question_id = data['id']
+        hole_id = data['pk']
+        await update_complete_question(question_id)
+        await fetch_questions(hole_id)        
+
+    #질문 생성하는 함수 : 현재 안 씀
+    # async def create_question(self,data,con):
+    #     question_data = {
+    #         'token' : data['token'],
+    #         'hole_id' :data['pk'],
+    #         'is_voice' : data['is_voice'],
+    #         'question' : data['question']
+    #     }
+    #     await create_hole_question(question_data)
+    #     await fetch_questions(question_data['hole_id']) 
+
     # saves message to db and fetch messages(room으로부터 메세지 받아오고 group에 보내기) again
     async def new_message(self, data,con):
         self.author_group_name = "author:%s" % self.room_name
@@ -174,8 +135,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         'fetch_messages': fetch_messages,
         'new_message': new_message,
         'fetch_questions' : fetch_questions,
-        'fetch_livehole' : fetch_livehole
+        'fetch_livehole' : fetch_livehole,
+        'create_question' : create_question,
+        'complete_question' : complete_question,
     }
+
+    # : 현재 안 씀
+    # async def send_livehole(self, event):
+    #     # message = event['message']
+    #     # Send message to WebSocket
+    #     await self.send(text_data=json.dumps({
+    #         "type": "LIVEHOLE",
+    #         "data": {}
+    #     }))
 
     # 처음 들어올 때 최근 N개 메세지 보여주기
     async def init_message(self, event):
@@ -204,10 +176,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # 질문을 소켓으로 보내기
     async def send_questions(self, event):
-        print("send_questions 에서 event : ", event)
+        # print("send_questions 에서 event : ", event)
         # event의 type에 따라 분기 처리해서 message 안에 type key를 추가하는식으로 해도 될듯.
         question = event['message']
-        print("send_questions 에서 question : ", question)
         # Send message to WebSocket
         # send 할 때 보낼 수 있는 key값이 무엇이 있는지 코드를 까보기
         await self.send(text_data=json.dumps({
@@ -216,9 +187,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
     
     @database_sync_to_async
-    def get_questions(self,question_data):
-        print("get_questions의 question_data : ", question_data)
-        hole = Hole.objects.get(id = question_data['hole_id'])
+    def create_hole_question(self,question_data):
+        print("create_hole_question : :")
+        # 토큰으로 유저 불러오기
+        token = Token.objects.get(key=question_data['token'])
+        user_id = token.user_id
+        print("질문 만들 때 유저 id : ", user_id)
+        user = User.objects.get(id=user_id)
+        hole = Hole.objects.get(id=int(question_data['hole_id']))
+        Question.objects.create(user=user,hole=hole, question= question_data['question'],is_voice=question_data['is_voice'])
+
+
+    @database_sync_to_async
+    def update_complete_question(self, id):
+        print("update_complete_question의 question : ", question_data)
+        question = Question.objects.get(id = int(id))
+        print("question 오브젝트 : ", question)
+        question.is_answered = True
+        question.save()
+        return question
+
+    @database_sync_to_async
+    def get_questions(self,data):
+        print("get_questions의 question_data : ", data)
+        hole = Hole.objects.get(id = int(data['pk']))
         questions = Question.objects.filter(hole=hole)
         serializer = QuestionSerializer(questions, many=True)
         return serializer.data
@@ -265,7 +257,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message_serializer = MessageSerializer(data = message)
         if message_serializer.is_valid():
             message_serializer.save()
-        # message = Message.objects.create(sender=author_id, text=text, livehole=livehole)
         
         # 메세지 넣는건 캐시에 메세지 데이터 추가하는 것과 별개로 디비에는 담아야 할듯. if else로 나눠서 처리되면 안됨.
         # 메세지 capacity 확인 후 eviction 및 캐시에 넣기
@@ -314,8 +305,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_chat_room(self, room, group,con):
         res = con.hexists(group, room) # live hole을 캐시에서 가져올 수 있는지 확인
-        # print("res : ", res)
-        # print("get_chat_room에서 room : ", room)
         if res == 1:
             print("hexists 통과")
             livehole = con.hget(group,room).decode("utf-8") # channel num 불러오기
@@ -325,4 +314,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
             livehole_h = con.hset(group,livehole,livehole)
             # print("hash cache set한 livehole : ", livehole_h)
         return livehole
-
