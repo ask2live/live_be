@@ -23,8 +23,10 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-import debug_toolbar 
-# from .settings import production, development, base
+# import debug_toolbar 
+from .settings import production, development, base
+from django.views.generic import TemplateView
+
 schema_view = get_schema_view(
    openapi.Info(
       title="Ask2Live API",
@@ -45,7 +47,8 @@ react_views_regex = r'\/|\b'.join([
     'login',
     'createSession',
     'mypage',
-    'session'
+    'session',
+    'preQuestions',
 
 ]) + r'\/'
 
@@ -57,8 +60,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^$', TemplateView.as_view(template_name='index.html'),name='index'),
     re_path(react_views_regex, TemplateView.as_view(template_name='index.html')),
-    # path('<path:route>',TemplateView.as_view(template_name='index.html'),name='index'),
-    # re_path(r'^(%s)?$' % '|'.join(routes), TemplateView.as_view(template_name='index.html')),
     #REST FRAMEWORK URls
     path('chat/', include('chat_messages.urls')), # 테스트용 -- 삭제 필요
     path('api/hole/', include('holes.urls')),
@@ -66,14 +67,14 @@ urlpatterns = [
     path('api/reservation/', include('hole_reservations.urls')),
 ]
 
-# if production.DEBUG:
-#     urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
+if production.DEBUG:
+    urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
 
-# if development.DEBUG:
-#     urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
+if development.DEBUG:
+    urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.DEBUG: 
-    urlpatterns += [ url(r'^__debug__/', include(debug_toolbar.urls)), ]
+# if settings.DEBUG: 
+#     urlpatterns += [ url(r'^__debug__/', include(debug_toolbar.urls)), ]

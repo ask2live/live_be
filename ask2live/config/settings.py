@@ -49,7 +49,6 @@ DJANGO_APPS = [
     'corsheaders',
     "sslserver",
     'drf_yasg',
-    'debug_toolbar'
 ]
 
 REST_FRAMEWORK = {

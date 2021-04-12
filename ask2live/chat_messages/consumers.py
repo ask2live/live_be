@@ -188,8 +188,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         'fetch_messages': fetch_messages,
         'new_message': new_message,
         'fetch_questions' : fetch_questions,
-        'fetch_livehole' : fetch_livehole,
-        'create_question' : create_question,
+        # 'fetch_livehole' : fetch_livehole,
+        # 'create_question' : create_question,
         'complete_question' : complete_question,
     }
 
