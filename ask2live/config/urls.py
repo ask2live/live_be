@@ -23,9 +23,8 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from .settings import production, development, base
-from django.views.generic import TemplateView
-
+import debug_toolbar 
+# from .settings import production, development, base
 schema_view = get_schema_view(
    openapi.Info(
       title="Ask2Live API",
@@ -67,11 +66,14 @@ urlpatterns = [
     path('api/reservation/', include('hole_reservations.urls')),
 ]
 
-if production.DEBUG:
-    urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
+# if production.DEBUG:
+#     urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
 
-if development.DEBUG:
-    urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
+# if development.DEBUG:
+#     urlpatterns += static(base.MEDIA_URL, document_root=base.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG: 
+    urlpatterns += [ url(r'^__debug__/', include(debug_toolbar.urls)), ]

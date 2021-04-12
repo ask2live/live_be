@@ -38,7 +38,8 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
         data = {}
         if user:
             reserve_date = request.data.get('reserve_date')
-            # print("reserve_date : ", reserve_date)
+            print("reserve_date : ", reserve_date)
+            print("reserve_date type : ", type(reserve_date))
             finish_date = parse(reserve_date) + timedelta(days=1)
             target_demand = request.data.get('target_demand')
             hole_serializer = HoleSerializer(context = {'request':request},data=request.data)
@@ -81,7 +82,7 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
 @api_view(['GET',])
 @permission_classes([IsAuthenticatedOrReadOnly,])
 def holes_view(request): #hole 상세정보 보는 api
-    print("branch가 바뀐게 찍힌다111????", flush=True)
+    # print("branch가 바뀐게 찍힌다111????", flush=True) # branch main -> test로 바꾸는거 테스트
     holes = Hole.objects.exclude(status="DONE").order_by('reserve_date') # DONE만 빼고 넘겨주기
     serializer = HoleListSerializer(holes, many=True)
     return Response(serializer.data)
