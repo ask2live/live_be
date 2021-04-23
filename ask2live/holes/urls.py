@@ -8,8 +8,6 @@ from .views import (
     hole_read_view,
     hole_update_view,
     hole_delete_view,
-    reserved_hole_detail_view,
-    HoleSearchView,
     live_hole_update_view,
     live_hole_create_view,
     live_hole_leave_view,

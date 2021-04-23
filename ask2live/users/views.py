@@ -19,7 +19,7 @@ HOST_CRITERIA = 1
 # Create your views here.
 @swagger_auto_schema(methods=['POST'], request_body=RegistrationSerializer, operation_description="POST /user/register")
 @api_view(['POST',])
-@permission_classes([]) .
+@permission_classes([])
 @authentication_classes([]) #회원 가입 할 때 인증을 따로 적용하지 않기 때문에 빈 값으로.
 def registration_or_login_view(request): # 로그인과 회원가입을 동시에 
     if request.method == "POST":
