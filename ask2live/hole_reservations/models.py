@@ -15,7 +15,6 @@ class Reservation(core_model.AbstractTimeStamp):
         (STATUS_HOST_CONFIRMED, "HOST_CONFIRMED"),
         (STATUS_CANCELED, "CANCELED"),
     )
-    # host                = models.ForeignKey(user_models.User, related_name="hole_reservations", on_delete=models.CASCADE)
     status              = models.CharField(max_length=30, choices=STATUS_CHOICES, default=STATUS_PENDING)
     target_demand       = models.IntegerField(blank=True, default=0)
     current_demand      = models.IntegerField(default=0)
@@ -30,6 +29,4 @@ class Reservation(core_model.AbstractTimeStamp):
     @property
     def count_guests(self):
         users = self.guests.all()
-        # print("users : ",users)
-        # print(users.count())
         return users.count()

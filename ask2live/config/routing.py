@@ -9,11 +9,8 @@ from chat_messages.consumers import ChatConsumer,ChatConsumer1
 websocket_urlpatterns = [
     # path("hole/<str:room_id>")
     re_path(r'ws/hole/(?P<room_id>\w+)/$', ChatConsumer.as_asgi()),
-    re_path(r'ws/chat/(?P<room_name>\w+)/$', ChatConsumer1.as_asgi())
-    # path("ws/hole/<room_id>", ChatConsumer),
+    # re_path(r'ws/chat/(?P<room_name>\w+)/$', ChatConsumer1.as_asgi()) # 테스트용
 ]
-# print("websocket url : ", websocket_urlpatterns)
-# print("websocekt ChatConsumer : ", ChatConsumer)
 
 application = ProtocolTypeRouter({
     'websocket': AuthMiddlewareStack(

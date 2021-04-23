@@ -73,6 +73,7 @@ PROJECT_APPS = [
     # "chats.apps.ChatsConfig",
 ]
 
+
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
 
 MIDDLEWARE = [
@@ -84,7 +85,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
+
+INTERNAL_IPS = ('127.0.0.1','143.248.226.8')
 
 ROOT_URLCONF = 'config.urls'
 
@@ -110,10 +114,6 @@ ASGI_APPLICATION = 'config.routing.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
@@ -176,7 +176,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # )
 
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS=['3.36.88.31','143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156','143.248.226.78','143.248.226.8']
+ALLOWED_HOSTS=['3.36.88.31','143.248.198.125','127.0.0.1', 'localhost', '143.248.226.51','143.248.232.143','143.248.220.177','211.36.145.245','175.223.10.151','223.39.161.127','223.62.213.118', '143.248.232.111','175.223.22.116','223.39.131.25','143.248.232.156','143.248.226.78','143.248.226.8','143.248.226.34','143.248.226.7']
 
 
 
@@ -218,6 +218,19 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+        },
+        "KEY_PREFIX": "example"
+    }
+}
+
 
 # swagger settings
 SWAGGER_SETTINGS = {

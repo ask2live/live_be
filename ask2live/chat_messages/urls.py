@@ -6,4 +6,4 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('<str:room_name>/', views.room, name='room'),
 ]
-# 테스트용 -- 삭제 필요
+# 테스트용 --

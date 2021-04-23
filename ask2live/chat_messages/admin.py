@@ -11,6 +11,7 @@ class ChatMessagesAdmin(admin.ModelAdmin):
         ,"text"
         ,"sender"
         ,"livehole"
-        ,"sent_timestamp"
-        # ,"start_at"
+        ,"sent_timestamps"
     )
+    def sent_timestamps(self, obj):
+        return obj.sent_timestamp.strftime("%d %b %Y %H:%M:%S")

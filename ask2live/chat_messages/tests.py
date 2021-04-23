@@ -35,9 +35,6 @@ class MyTests(TestCase):
         await communicator.disconnect()
 
 class SimpleWebsocketApp(WebsocketConsumer):
-    """
-    Barebones WebSocket ASGI app for testing.
-    """
 
     def connect(self):
         assert self.scope["path"] == "/testws/"

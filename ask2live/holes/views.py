@@ -32,25 +32,19 @@ from drf_yasg.utils import swagger_auto_schema
 def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 만들어져야 함.   
     print("DEBUG | Hole Create")
     if request.method == 'POST':
-        # print("request : ", request)
         account = request.user
         user = user_models.User.objects.get(username=account)
         data = {}
         if user:
             reserve_date = request.data.get('reserve_date')
-            # print("reserve_date : ", reserve_date)
             finish_date = parse(reserve_date) + timedelta(days=1)
             target_demand = request.data.get('target_demand')
             hole_serializer = HoleSerializer(context = {'request':request},data=request.data)
-            # print("hole_serializer : ", hole_serializer)
             
             if hole_serializer.is_valid(): 
                 hole_serializer.save()
-                # print("hole_serializer : ", hole_serializer.data)
                 pk = hole_serializer.data['id']
-                # print("pk: ", pk)
                 hole = Hole.objects.get(id=pk)
-                # print("hole: ", hole)
                 reservation_serializer = HoleReservationSerializer(
                     data={
                         "hole":hole.id, 
@@ -72,15 +66,12 @@ def hole_create_view(request): # hole 만드는 api, hole reservation도 같이 
                 data['response'] = 'FAIL'
                 data['detail'] = '유효한 정보가 아닙니다.'
                 return Response(data, status=status.HTTP_400_BAD_REQUEST)
-        # else: # 호스트권한이 없는 경우
-        #     data['response'] = 'FAIL'
-        #     data['detail'] = '호스트 권한이 없습니다.'
-        #     return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET',])
 @permission_classes([IsAuthenticatedOrReadOnly,])
 def holes_view(request): #hole 상세정보 보는 api
+    # print("branch가 바뀐게 찍힌다111????", flush=True) # branch main -> test로 바꾸는거 테스트
     holes = Hole.objects.exclude(status="DONE").order_by('reserve_date') # DONE만 빼고 넘겨주기
     serializer = HoleListSerializer(holes, many=True)
     return Response(serializer.data)
@@ -123,7 +114,7 @@ def hole_update_view(request, hole_id): # 특정 hole update하기
         data["detail"] = "수정할 권한이 없습니다."
         return Response(data)
     # 업데이트 대상 instance를 추가해야 함 (hole)
-    if request.method == "PATCH": #추후엔 PATCH로 바꾸는 것도 고려.
+    if request.method == "PATCH":
         hole_serializer = HoleSerializer(hole, data=request.data, partial=True)
         reservation_data = {}
         reserved_hole = Reservation.objects.get(hole=hole_id)
@@ -132,10 +123,9 @@ def hole_update_view(request, hole_id): # 특정 hole update하기
         if reserve_date:
             reservation_data['reserve_date'] = reserve_date
         target_demand = request.data.get('target_demand')
-        print("target_demand : ", target_demand, flush=True)
         if target_demand >= 0:
             reservation_data['target_demand'] = target_demand
-        print("reservation_data : ", reservation_data, flush=True)
+        # print("reservation_data : ", reservation_data, flush=True) -- DEBUG용
         if hole_serializer.is_valid(raise_exception=True):
 
             hole_serializer.save()
@@ -177,43 +167,12 @@ def hole_delete_view(request, hole_id): # hole 삭제하는 api
     except:
         pass
     operation = hole.delete()
-    # print("operations : ", operation)
     if operation:
         data["response"] = "SUCCESS"
     else:
         data["response"] = "FAIL"
     return Response(data)
 
-
-@api_view(['GET',])
-@permission_classes([IsAuthenticatedOrReadOnly,])
-def reserved_hole_detail_view(request): # 예약된 hole만 조회하는 api
-    reserved_holes = Hole.objects.exclude(reserve_date__isnull=True).exclude(finish_date__isnull=True)
-    serializer = HoleSerializer(reserved_holes, many=True)
-    
-    return Response(serializer.data)
-
-
-class HoleSearchView(ListAPIView): # hole을 찾는 api
-    # queryset = Hole.objects.all()
-    serializer_class = HoleSerializer
-    authentication_classes = ([])
-    permission_classes = ([])
-
-    def get_context_data(self, *args, **kwargs): # context data 공부하기
-        context = super().get_context_data(*args, **kwargs)
-        context['count'] = self.count or 0
-        context['query'] = self.request.GET('q')
-        # print(context)
-        return context
-
-    def get_queryset(self):
-        request = self.request
-        query = request.GET.get('q', None)
-        if query is not None:
-            self.count = len(query)
-            return Hole.objects.search(query=query)
-        return Hole.objects.none()
 
 
 # Live Hole을 만드는 기능. room_number랑 uid 받을 거임.
@@ -224,7 +183,6 @@ def live_hole_create_view(request,pk):
     print("DEBUG | Live Hole Create")
     serializer_class = ParticipantSerializer
     user = request.user
-    # print("account:",account)
     hole = Hole.objects.get(pk=pk)
     if request.method=="POST":
         data = {}
@@ -267,7 +225,6 @@ def live_hole_update_view(request,pk,channel_num): # 우리는 url로 channel_nu
         data = {}
         user = request.user
         livehole = LiveHole.objects.filter(id=channel_num)  
-        # print("livehole : ", livehole) 
         serializer= serializer_class(data= {'livehole' : livehole[0].id, 'user': user.id}) # 참가자 목록에 넣기.
         if user.username != livehole[0].hole.host.username: # host가 아니라 audience인 경우
             uid = request.data.get("uid")
@@ -295,9 +252,7 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
     data = {}
     print("DEBUG | Live Hole Leave")
     if request.method == 'PATCH':
-        # print("request : ", request)
         user = request.user
-        # print("request user : ", request.user)
         participant = Participants.objects.get(livehole=channel_num, user=user,leaved__isnull=True)
         serializer = ParticipantSerializer(participant, data={'leaved':datetime.now()}, partial=True)
         # audience가 나갈 경우 audience uid를 지워야 함.
@@ -307,7 +262,6 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
                 livehole.hole.status = 'DONE'
                 livehole.hole.finish_date = timezone.now()
                 livehole.hole.save()
-                # TODO : 방이 폭파되는거라 게스트도 다 leave가 찍혀야 함..!
             serializer.save()
             data['response'] = 'SUCCESS'
             return Response(data, status=status.HTTP_200_OK)
@@ -321,8 +275,6 @@ def live_hole_leave_view(request,pk,channel_num): # 우리는 url로 channel_num
 def live_hole_read_view(request,channel_num): # 현재 라이브하고있는 그 홀의 정보륿 불러와야 할듯. 그리고 leave 안 된 사람만!
     try:
         livehole = LiveHole.objects.get(id=channel_num)
-        # filter는 여러개 가지고올 수 있고, get은 1개만 가져온다.
-        # print("live_hole:",livehole)
     except LiveHole.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     data = {}
@@ -342,7 +294,6 @@ def live_hole_read_view(request,channel_num): # 현재 라이브하고있는 그
 def hole_question_register_view(request,pk):
     hole = Hole.objects.get(id=pk)
     serializer = QuestionSerializer(context = {'request':request},data=request.data)
-    # print("serailizer", serializer)
     data = {}
     if serializer.is_valid():
         serializer.save(hole=hole)
@@ -392,7 +343,6 @@ def hole_question_delete_view(request,question_id,pk=None): #등록한 질문을
         data["detail"] = "삭제할 권한이 없습니다."
         return Response(data)
     operation = question.delete()
-    # print("operations : ", operation)
     if operation:
         data["response"] = "SUCCESS"
     else:
@@ -435,8 +385,6 @@ def hole_wish_view(request,pk):
             data['detail'] = '호스트는 예약 신청을 할 수 없습니다.'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
         reservation.current_demand +=1
-        # print("reservation : ", reservation)
-        # print("reservation : ", reservation.guests)
         wish_user_obj = user_models.User.objects.get(username=user)
         if wish_user_obj.hole_reservations.filter(id=reservation.id, guests=user).exists(): # many to many field의 reverse accessor 활용
             data['response'] = 'FAIL'
@@ -469,7 +417,7 @@ def hole_wish_cancel_view(request,pk):
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
         reservation.current_demand -=1
-        # print("reservation : ", reservation.guests) # 왜 users.User.None 로 찍히지?
+
         wish_user_obj = user_models.User.objects.get(username=user)
         target_user = wish_user_obj.hole_reservations.filter(guests=user)
         if target_user.exists(): # many to many field의 reverse accessor 활용
@@ -488,8 +436,6 @@ def hole_wish_cancel_view(request,pk):
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated,])
 def host_hole_confirm_view(request,pk):
-    # print("request : ", request)
-    # print("request user : ", request.user)
     data={}
     try:
         hole = Hole.objects.get(id=pk)

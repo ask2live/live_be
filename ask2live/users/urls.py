@@ -10,11 +10,9 @@ from .views import (
         user_follow_view,
         user_unfollow_view
         )
-# from rest_framework.authtoken.views import obtain_auth_token
 app_name="user"
 urlpatterns = [
     path('login', registration_or_login_view, name="login"),
-    # path('login', ObtainAuthTokenView.as_view(), name="login"), # login을 커스텀 뷰로 변경
     path('logout', Logout.as_view(), name="logout"),
     path('read', user_properties_view, name='read'),
     path('read/hole', user_properties_view, name='read_hole'),

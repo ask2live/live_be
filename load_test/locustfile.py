@@ -14,7 +14,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
 
     def login(self):
         print("로그인 하기")
-        # 처음에는 한명만 로그인 하지만 login 세트를 하나씩 돌아가며 로그인하게 개선해보자.
         username = "foo" + str(random.randint(1, 5000))
         with self.client.post(
             "/api/user/login", 
@@ -25,17 +24,14 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
             ) as response:
             self.token = response.json()['detail']['token']
             self.token_list.append(self.token)           
-        # print("login res : ", res.json())
     @task
     def get_holes(self): # 전체 홀 조회
         print("전체 홀 보기")
         res = self.client.get("/api/hole")
         json_response_dict = res.json()
-        # print("전체 홀 조회 res : ", res.json())
         for i in range(len(json_response_dict)):
             hole_id = json_response_dict[i]['id']
             self.hole_list.append(hole_id)
-        # print("hole_list: ", self.hole_list)
     
     @task(2)
     def get_individual_hole(self):
@@ -67,7 +63,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
             if response.status_code == 201:
                 self.hole_id = response.json()['detail']['id']
                 print("홀 만들기 성공")
-                # print("self hole_id : ", self.hole_id)
             else:
                 print("홀 만들기 실패")
     
@@ -91,9 +86,7 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
     @task
     def wish_hole(self):
         print("모집 세션 찜하기")
-        # print("token_list : ", self.token_list)
         for i in range(len(self.token_list)):
-            # print("token : ", self.token)
             if self.token == self.token_list[i]:
                 continue
             else:
@@ -110,7 +103,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
     @task
     def host_confirm_hole(self):
         print("홀 예약 확정하기")
-        # print("self hole_id : ", self.hole_id)
 
         with self.client.patch(
             url="/api/reservation/hole/" + str(self.hole_id) +"/hostconfirm",
@@ -129,7 +121,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
     @task
     def livehole_create(self): # 위에서 썼던 홀 id를 가져와야 할듯.
         print("라이브 홀 만들기")
-        # print("self hole_id : ", self.hole_id)
         # self.hold_id 찍어보기
         self.channel_num = "thisisroom" + str(random.randint(10, 5000))
         with self.client.post(
@@ -160,7 +151,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
                         "uid" : random.randint(100000,4000000)
                     }
                 ) as response:
-                    # print("response : ", response.json())
                     if response.json()['response'] == 'SUCCESS':
                         print("라이브 홀 조인 성공")
                     else:
@@ -170,7 +160,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
     @task
     def update_question(self):
         print("라이브 홀 질문 답변 처리")
-        # print("홀-질문 리스트 : ", self.created_hole_list )
         with self.client.patch(
             url = "/api/hole/" + str(self.hole_id) +"/question/update/" + str(self.created_hole_list[self.hole_id].pop(0)),
             headers= {"authorization": "Token "+self.token},
@@ -199,7 +188,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
                     url="/api/hole/" + str(self.hole_id) +"/live/leave/" + str(self.channel_num),
                     headers= {"Authorization": "Token "+self.token_list[i]}
                 ) as response:
-                    # print("response : ", response.json())
                     if response.json()['response'] == 'SUCCESS':
                         print("라이브 홀 나가기 성공")
                     else:
@@ -220,14 +208,6 @@ class UserBehavior(SequentialTaskSet): # Sequence 활용해서 순차적인 플�
                     print("로그아웃 실패")
         self.ws.close()
         self.user.environment.runner.quit()
-
-    # def on_quit(self):
-    #     self.ws.close()
-    # @task(3)
-    # def view_items(self):
-    #     for item_id in range(10):
-    #         self.client.get(f"/item?id={item_id}", name="/item")
-    #         time.sleep(1)
 
 class WebsiteUser(HttpUser):
     tasks= [UserBehavior]
