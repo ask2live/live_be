@@ -9,7 +9,6 @@ from core import models as core_model
 class Message(core_model.AbstractTimeStamp):
     text = models.TextField()
     sender = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, blank=True)
-    # LiveHole로 하면 LiveHole.id가 될거같은데?..
     livehole = models.ForeignKey(hole_models.LiveHole, on_delete=models.CASCADE,related_name="messages")
     sent_timestamp = models.DateTimeField(auto_now_add = True, editable=False, blank=True)
     

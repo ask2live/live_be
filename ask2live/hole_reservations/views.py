@@ -19,26 +19,14 @@ from rest_framework.response import Response
 class ReservationList(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = HoleReservationSerializer
-    # model = Reservation
-    # paginate_by = 10
 
     def get_queryset(self):
         queryset = Reservation.objects.all()
-        # queryset = queryset.filter(user=request.user)
         return queryset
-
-# reserve_wish_view 만들기 (PATCH로 만들어야 하나?)
-
 
 @api_view(['PUT',])
 # @permission_classes((IsAuthenticated,))
 def reserve_update_view(request, hole_id):
-
-    # if request.method == 'PUT':
-        # user = request.user
-        # if hole.host != user:
-            # return Response({'response': "You don't have permission to edit this."})
-
     updated_hole = Hole.objects.get(pk=hole_id)
     reserved_hole = Reservation.objects.get(hole=hole_id)
     serializer = HoleReservationSerializer(reserved_hole, data=request.data)

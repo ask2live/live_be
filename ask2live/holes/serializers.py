@@ -23,14 +23,10 @@ class HoleSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     count_guests = serializers.IntegerField(read_only=True)
-    # SlugRelated Field랑 SerializerMethodField 중에 후자는 RelatedObjectDoesNotExist가 나는데 원인 파악 필요
+    # TODO : SlugRelated Field랑 SerializerMethodField 중에 후자는 RelatedObjectDoesNotExist가 나는데 원인 파악 필요
     # reservation_status = serializers.SerializerMethodField(read_only=True, required=False)
-    # def get_reservation_status(self, obj):
-    #     print("status : ", obj.hole_reservations)
-    #     return obj.hole_reservations.status
     class Meta:
         model = Hole
-        # fields = '__all__'
         fields = [
             "id",
             "created",
@@ -49,7 +45,6 @@ class HoleSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {
             "status": {"required": False, 'read_only': True},
-            # "rating": {"required": False, 'read_only': True},
             "finish_date": {"required": False},
             "reservation_status" : {'read_only':True, "required": False},
             "target_demand" : {'read_only':True, "required": False},
@@ -59,7 +54,6 @@ class HoleSerializer(serializers.ModelSerializer):
         instance = self.Meta.model(**validated_data)
         finish_date = validated_data['reserve_date'] + timedelta(days=1)
         user = self.context['request'].user
-        # user = validated_data['user']
         instance.host = user 
         instance.finish_date = finish_date
         instance.save()
@@ -100,7 +94,6 @@ class HoleListSerializer(serializers.ModelSerializer):
     
 
 class LiveHoleSerializer(serializers.ModelSerializer):
-    # hole = serializers.PrimaryKeyRelatedField(many=False, queryset=Hole.objects.all())
     host = serializers.CharField(read_only=True, source = 'hole.host.id')
     host_username = serializers.CharField(read_only=True, source = 'hole.host.username')
     host_profile_image_url = serializers.CharField(read_only=True, source = 'hole.host.profile_image')
@@ -116,16 +109,6 @@ class LiveHoleSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-    # def save(self):
-    #     print("vali data: ", self.validated_data)
-    #     livehole = LiveHole(
-    #         host_uid = self.validated_data['host_uid'],
-    #         room_number = self.validated_data['room_number']
-    #     )
-    #     print("livehole save 전")
-    #     print("livehole:",livehole)
-    #     livehole.save()
-    #     return livehole
 
 class ParticipantSerializer(serializers.ModelSerializer):
     profile_image_url = serializers.ImageField(source='user.profile_image',max_length=None, use_url=True, allow_null=True, required=False)
@@ -171,7 +154,6 @@ class QuestionSerializer(serializers.ModelSerializer):
         # instance에는 Question 모델 object가 담김.
         user = self.context['request'].user
         hole = Hole.objects.get(id=validated_data['hole'].id)
-        # hole = validated_data['pk']
         instance.user = user 
         instance.hole = hole
         instance.save()

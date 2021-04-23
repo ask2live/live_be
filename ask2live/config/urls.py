@@ -23,7 +23,6 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-# import debug_toolbar 
 from .settings import production, development, base
 from django.views.generic import TemplateView
 
@@ -48,7 +47,7 @@ react_views_regex = r'\/|\b'.join([
     'createSession',
     'mypage',
     'session',
-    'preQuestions',
+    'preQuestions'
 
 ]) + r'\/'
 
@@ -56,10 +55,10 @@ urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    # path( '', TemplateView.as_view(template_name='index.html'),name='index'),
     path('admin/', admin.site.urls),
     re_path(r'^$', TemplateView.as_view(template_name='index.html'),name='index'),
     re_path(react_views_regex, TemplateView.as_view(template_name='index.html')),
+
     #REST FRAMEWORK URls
     path('chat/', include('chat_messages.urls')), # 테스트용 -- 삭제 필요
     path('api/hole/', include('holes.urls')),
@@ -75,6 +74,3 @@ if development.DEBUG:
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# if settings.DEBUG: 
-#     urlpatterns += [ url(r'^__debug__/', include(debug_toolbar.urls)), ]

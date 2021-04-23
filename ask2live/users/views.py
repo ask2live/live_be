@@ -19,7 +19,7 @@ HOST_CRITERIA = 1
 # Create your views here.
 @swagger_auto_schema(methods=['POST'], request_body=RegistrationSerializer, operation_description="POST /user/register")
 @api_view(['POST',])
-@permission_classes([]) # 회원 가입할 때는 permission을 따로 적용하지 않기 때문에 빈 값으로.
+@permission_classes([]) .
 @authentication_classes([]) #회원 가입 할 때 인증을 따로 적용하지 않기 때문에 빈 값으로.
 def registration_or_login_view(request): # 로그인과 회원가입을 동시에 
     if request.method == "POST":
@@ -28,7 +28,7 @@ def registration_or_login_view(request): # 로그인과 회원가입을 동시�
         password = request.data.get('password')
         if validate_username(username) != None: # 이미 username이 있을 경우 로그인
             account = authenticate(username=username, password=password)
-            print("회원가입 로그인 account : ", account, flush=True)
+            # print("회원가입 로그인 account : ", account, flush=True) -- debug용
             if account:
                 try:
                     token = Token.objects.get(user=account)
@@ -41,7 +41,6 @@ def registration_or_login_view(request): # 로그인과 회원가입을 동시�
                 return Response(data,status=status.HTTP_200_OK)
 
         serializer= RegistrationSerializer(data=request.data)
-        print("회원가입 시리얼라이저 : ",serializer, flush=True)
         if serializer.is_valid(): # 아니면 회원가입
             account = serializer.save()
             token = Token.objects.get(user=account).key
@@ -49,7 +48,6 @@ def registration_or_login_view(request): # 로그인과 회원가입을 동시�
             data['detail'] = {}
             data['detail']['pk'] = account.pk
             data['detail']['username'] = account.username
-            print("회원가입 시 token:",token)
             data['detail']['token'] = token
             return Response(data,status=status.HTTP_200_OK)
         else:
@@ -61,7 +59,7 @@ def validate_username(username):
     account = None
     try: 
         account = models.User.objects.get(username=username)
-        print("validate username account : ", account)
+        # print("validate username account : ", account)
     except models.User.DoesNotExist:
         return None
     if account != None:
@@ -73,7 +71,6 @@ class Logout(APIView):
     permission_classes = [IsAuthenticated,]
     def post(self, request, format=None):
         # simply delete the token to force a login
-        # print("request : ", request)
         request.user.auth_token.delete()
         data = {}
         data['response'] = 'SUCCESS'
@@ -83,10 +80,8 @@ class Logout(APIView):
 @permission_classes([IsAuthenticatedOrReadOnly,]) #특정 유저 조회할 때는 허가 필요
 def user_properties_view(request):
     path = request.resolver_match.url_name
-    # print("path : ", path)
     data = {}
     try:
-        # print("request_user",request)
         account = request.user
     except User.DoesNotExist:
         data['response'] = 'FAIL'
@@ -169,7 +164,6 @@ def user_follow_view(request,user_id):
         following_user = models.User.objects.get(id=user_id)
         models.UserFollowing.objects.create(user_id=me, following_user_id=following_user)
         follow_count = following_user.followers.count()
-        # print("follow_count : ", follow_count , HOST_CRITERIA)
         if follow_count == HOST_CRITERIA: #호스트 기준 충족시에만 권한부여
             following_user.hole_open_auth = True
             following_user.save()
@@ -198,23 +192,6 @@ def user_unfollow_view(request,user_id):
             following_user.save()
         data['response'] = 'SUCCESS'
         return Response(data=data, status=status.HTTP_200_OK)
-
-
-# @api_view(['GET', ])
-# @permission_classes([])
-# @authentication_classes([])
-# def does_account_exist_view(request):
-# 	if request.method == 'GET':
-# 		username = request.GET['username'].lower()
-# 		data = {}
-# 		try:
-# 			account = Account.objects.get(username=username)
-# 			data['response'] = username
-# 		except Account.DoesNotExist:
-# 			data['response'] = "Account does not exist"
-# 		return Response(data)
-
-
 
 class ChangePasswordView(UpdateAPIView):
 	serializer_class = ChangePasswordSerializer
